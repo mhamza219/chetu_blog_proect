@@ -1,0 +1,30 @@
+<div class="container mt-4">
+  <h3 class="mb-3">Blogs</h3>
+<h4><%= link_to "Create Blog", new_blog_path, class: "btn btn-sm btn-danger" %> </h4>
+  <table class="table table-bordered table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @blogs.each do |blog| %>
+        <tr>
+          <td><%= blog.id %></td>
+          <td><%= blog.title %></td>
+          <td><%= blog.description %></td>
+          <td><%= blog.created_at.strftime("%d %b %Y") %></td>
+          <td>
+            <%= link_to "View", blog_path(blog), class: "btn btn-sm btn-success" %>
+            <%= link_to "Edit", edit_blog_path(blog), class: "btn btn-sm btn-warning" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
