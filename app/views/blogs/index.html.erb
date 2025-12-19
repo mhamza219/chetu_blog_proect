@@ -1,6 +1,6 @@
 <div class="container mt-4">
   <h3 class="mb-3">Blogs</h3>
-<h4><%= link_to "Create Blog", new_blog_path, class: "btn btn-sm btn-danger" %> </h4>
+<h4><%= link_to "Create Blog", new_blog_path, class: "btn btn-sm btn-primary" %> </h4>
   <table class="table table-bordered table-striped table-hover">
     <thead class="table-dark">
       <tr>
@@ -22,6 +22,7 @@
           <td>
             <%= link_to "View", blog_path(blog), class: "btn btn-sm btn-success" %>
             <%= link_to "Edit", edit_blog_path(blog), class: "btn btn-sm btn-warning" %>
+            <%= button_to "Delete", blog_path(blog), method: :delete, class: "btn btn-sm btn-danger" %>
           </td>
         </tr>
       <% end %>

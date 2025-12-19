@@ -1,6 +1,6 @@
 class BlogsController < ApplicationController
 
-  before_action :blog_params, except: [:index, :new]
+  before_action :set_blog, except: [:index, :new, :create]
 
   def index
     @blogs = Blog.all
@@ -11,28 +11,44 @@ class BlogsController < ApplicationController
   end
 
   def show
+    # byebug
+    @blog.views += 1
+    @blog.save
   end
 
   def create
-
-    @blog = Blog.create(title: params["blog"]["title"] , description: params["blog"]["description"])
+    @blog = Blog.new(blog_params)
+    if @blog.save
+      redirect_to blogs_path
+    else
+      render new
+    end
   end
 
   def edit
   end
 
   def update
-
-    @blog.update!(title: params["blog"]["title"] , description: params["blog"]["description"])
+    if @blog.update(blog_params)
+      redirect_to "/blogs"
+    else
+      render new
+    end
   end
 
-  def delete
+  def destroy
+    @blog.destroy
+    redirect_to blogs_path
   end
 
   private
 
-  def blog_params
+  def set_blog
     @blog = Blog.find(params[:id])
+  end
+
+  def blog_params
+    params.require(:blog).permit(:title, :description)
   end
 
 end
