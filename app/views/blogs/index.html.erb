@@ -9,6 +9,7 @@
         <th>Description</th>
         <th>Created At</th>
         <th>Actions</th>
+        <th>Views</th>
       </tr>
     </thead>
 
@@ -24,6 +25,7 @@
             <%= link_to "Edit", edit_blog_path(blog), class: "btn btn-sm btn-warning" %>
             <%= button_to "Delete", blog_path(blog), method: :delete, class: "btn btn-sm btn-danger" %>
           </td>
+          <td><%= blog.views  %></td>
         </tr>
       <% end %>
     </tbody>
