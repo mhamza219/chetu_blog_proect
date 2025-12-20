@@ -1,6 +1,7 @@
 class BlogsController < ApplicationController
 
   before_action :set_blog, except: [:index, :new, :create]
+  before_action :authenticate_user!
 
   def index
     @blogs = Blog.all
