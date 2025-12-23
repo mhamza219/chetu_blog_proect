@@ -10,6 +10,7 @@
         <th>Created At</th>
         <th>Actions</th>
         <th>Views</th>
+        <th>Created By</th>
       </tr>
     </thead>
 
@@ -26,6 +27,7 @@
             <%= button_to "Delete", blog_path(blog), method: :delete, class: "btn btn-sm btn-danger" %>
           </td>
           <td><%= blog.views  %></td>
+          <td><%= blog.try(:user).try(:email)  %></td>
         </tr>
       <% end %>
     </tbody>
