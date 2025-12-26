@@ -4,7 +4,11 @@ class BlogsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @blogs = Blog.all
+    # byebug
+    # @blogs = Blog.all
+    if user_signed_in?
+      @blogs = Blog.where(user_id: current_user.id).or(Blog.where(status: "published")) 
+    end
   end
 
   def new
@@ -18,7 +22,7 @@ class BlogsController < ApplicationController
   end
 
   def create
-    byebug
+    # @blog = current_user.build_blog(blog_params)  for one_to_one
     @blog = current_user.blogs.new(blog_params)
     # @blog.user_id = current_user.id
     if @blog.save
@@ -35,13 +39,24 @@ class BlogsController < ApplicationController
     if @blog.update(blog_params)
       redirect_to "/blogs"
     else
-      render new
+      render 'new'
     end
   end
 
   def destroy
     @blog.destroy
     redirect_to blogs_path
+  end
+
+  def update_blog_status
+    # byebug
+    @blog = Blog.find(params[:id])
+    if @blog.draft?
+      @blog.published! if current_user.id == @blog.user_id
+    else
+      @blog.draft! if current_user.id == @blog.user_id
+    end
+    redirect_to '/blogs'
   end
 
   private
@@ -51,7 +66,7 @@ class BlogsController < ApplicationController
   end
 
   def blog_params
-    params.require(:blog).permit(:title, :description)
+    params.require(:blog).permit(:title, :description, :status, :video, images: [])
   end
 
 end

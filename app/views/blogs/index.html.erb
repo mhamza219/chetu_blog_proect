@@ -11,6 +11,7 @@
         <th>Actions</th>
         <th>Views</th>
         <th>Created By</th>
+        <th>Status</th>
       </tr>
     </thead>
 
@@ -22,12 +23,20 @@
           <td><%= blog.description %></td>
           <td><%= blog.created_at.strftime("%d %b %Y") %></td>
           <td>
-            <%= link_to "View", blog_path(blog), class: "btn btn-sm btn-success" %>
+            <%= link_to "View", blog_path(blog), data: { turbo: false }, class: "btn btn-sm btn-success" %>
             <%= link_to "Edit", edit_blog_path(blog), class: "btn btn-sm btn-warning" %>
             <%= button_to "Delete", blog_path(blog), method: :delete, class: "btn btn-sm btn-danger" %>
           </td>
           <td><%= blog.views  %></td>
           <td><%= blog.try(:user).try(:email)  %></td>
+          <td>
+            <%if blog.status == "draft" %>
+            <%= link_to "Published", update_blog_status_blog_path(blog),data: { turbo: false }, class: "btn btn-sm btn-primary"%>
+            <%else%>
+            <%= link_to "draft", update_blog_status_blog_path(blog),data: { turbo: false } ,class: "btn btn-sm btn-warning"%>
+            <%end%>
+              
+            </td>
         </tr>
       <% end %>
     </tbody>

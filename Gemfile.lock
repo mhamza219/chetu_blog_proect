@@ -338,6 +338,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  activestorage
   bootsnap
   brakeman
   byebug
