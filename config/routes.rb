@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
   devise_for :users
   
-  resources :blogs
+  resources :blogs do
+    member do
+      get :update_blog_status
+    end
+  end
   # get "/blogs", to: "blog#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -18,6 +18,18 @@
               <%= form.label :description, class: "form-label" %>
               <%= form.text_area :description, class: "form-control", rows: 4, placeholder: "Enter blog description" %>
             </div>
+            <div class="mb-3">
+              <%= form.label :status, class: "form-label" %>
+              <%= form.select :status, Blog.statuses.keys.map { |s| [s.humanize, s] },{ prompt: "Select Status" }, class: "form-control" %>
+            </div>
+            <div class="mb-3">
+              <%= form.label :images, class: "form-label" %>
+              <%= form.file_field :images, multiple: true %>
+            </div>
+            <div class="mb-3">
+              <%= form.label :video, class: "form-label" %>
+              <%= form.file_field :video%>
+            </div>
 
             <div class="d-grid">
               <%= form.submit "Submit Blog", class: "btn btn-primary" %>

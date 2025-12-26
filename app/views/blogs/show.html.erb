@@ -18,6 +18,16 @@
           <p class="card-text">
             <%= simple_format(@blog.description) %>
           </p>
+          <p>
+            <%@blog.images.each do |image| %>
+            <%= image_tag image, style: "height: 200px; width: 200px;" %>
+            <%end%>
+          </p>
+          <p>
+            <%if @blog.video.attached?%>
+            <%= video_tag url_for(@blog.video), style: "height: 500px; width: 500px;", controls: true %>
+            <%end%>
+          </p>
 
           <div class="mt-4">
             <%= link_to "Edit", edit_blog_path(@blog), class: "btn btn-warning me-2" %>
