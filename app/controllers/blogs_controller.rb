@@ -7,7 +7,7 @@ class BlogsController < ApplicationController
     # byebug
     # @blogs = Blog.all
     if user_signed_in?
-      @blogs = Blog.where(user_id: current_user.id).or(Blog.where(status: "published")) 
+      @blogs = Blog.where(user_id: current_user.id).or(Blog.where.not(user_id: current_user.id).published) 
     end
   end
 
