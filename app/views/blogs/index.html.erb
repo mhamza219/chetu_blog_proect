@@ -1,6 +1,6 @@
 <div class="container mt-4">
   <h3 class="mb-3">Blogs</h3>
-<h4><%= link_to "Create Blog", new_blog_path, class: "btn btn-sm btn-primary" %> </h4>
+<h4><%= link_to "Create Blog", new_blog_path, class: "btn btn-sm btn-info" %> </h4>
   <table class="table table-bordered table-striped table-hover">
     <thead class="table-dark">
       <tr>
@@ -23,7 +23,7 @@
           <td><%= blog.description %></td>
           <td><%= blog.created_at.strftime("%d %b %Y") %></td>
           <td>
-            <%= link_to "View", blog_path(blog), data: { turbo: false }, class: "btn btn-sm btn-success" %>
+            <%= link_to "View", blog_path(blog), data: { turbo: false }, class: "btn btn-sm text-dark btn-success" %>
             <%= link_to "Edit", edit_blog_path(blog), class: "btn btn-sm btn-warning" %>
             <%= button_to "Delete", blog_path(blog), method: :delete, class: "btn btn-sm btn-danger" %>
           </td>
@@ -31,7 +31,7 @@
           <td><%= blog.try(:user).try(:email)  %></td>
           <td>
             <%if blog.status == "draft" %>
-            <%= link_to "Published", update_blog_status_blog_path(blog),data: { turbo: false }, class: "btn btn-sm btn-primary"%>
+            <%= link_to "Published", update_blog_status_blog_path(blog),data: { turbo: false }, class: "btn btn-sm btn-info"%>
             <%else%>
             <%= link_to "draft", update_blog_status_blog_path(blog),data: { turbo: false } ,class: "btn btn-sm btn-warning"%>
             <%end%>

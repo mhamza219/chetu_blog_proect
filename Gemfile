@@ -6,6 +6,7 @@ gem "rails", "~> 7.2.3"
 gem "sprockets-rails"
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 1.4"
+gem 'pg', '>= 0.18', '< 2.0'
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -20,7 +21,15 @@ gem "jbuilder"
 # gem "redis", ">= 4.0.1"
 gem 'byebug'
 
+gem 'dotenv-rails'
+
 gem 'devise'
+
+gem 'activeadmin'
+
+gem 'sassc-rails'
+
+gem 'faker'
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
