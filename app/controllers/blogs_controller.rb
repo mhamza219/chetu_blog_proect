@@ -1,13 +1,17 @@
 class BlogsController < ApplicationController
 
+  # include Common
+
   before_action :set_blog, except: [:index, :new, :create]
   before_action :authenticate_user!
 
   def index
     # byebug
-    # @blogs = Blog.all
     if user_signed_in?
-      @blogs = Blog.where(user_id: current_user.id).or(Blog.where.not(user_id: current_user.id).published) 
+      @blogs = Blog.where(user_id: current_user.id).or(Blog.where.not(user_id: current_user.id).published)
+    else
+      @blogs = Blog.all
+    # render json: {data: @blogs} 
     end
   end
 
@@ -22,9 +26,7 @@ class BlogsController < ApplicationController
   end
 
   def create
-    # @blog = current_user.build_blog(blog_params)  for one_to_one
     @blog = current_user.blogs.new(blog_params)
-    # @blog.user_id = current_user.id
     if @blog.save
       redirect_to blogs_path
     else

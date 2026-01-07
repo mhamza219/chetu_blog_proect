@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  get "weather/index"
+  require "sidekiq/web" # require the web UI
+
+  Rails.application.routes.draw do
+  get "weather/index"
+    mount Sidekiq::Web => "/sidekiq" # access it at http://localhost:3000/sidekiq
+  end
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
   devise_for :users
@@ -8,6 +15,9 @@ Rails.application.routes.draw do
       get :update_blog_status
     end
   end
+
+  get "weather", to: "weather#index"
+
   # get "/blogs", to: "blog#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
