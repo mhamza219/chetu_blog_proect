@@ -1,0 +1,16 @@
+<h1>Weather Information</h1>
+
+<%= form_with url: weather_path, method: :get, local: true do %>
+  <input type="text" name="city" placeholder="Enter city" />
+  <button type="submit">Get Weather</button>
+<% end %>
+
+<% if @weather %>
+  <h2><%= @weather[:city] %></h2>
+  <p>🌡 Temperature: <%= @weather[:temperature] %> °C</p>
+  <p>☁ Condition: <%= @weather[:description] %></p>
+  <p>💧 Humidity: <%= @weather[:humidity] %>%</p>
+  <p>🌬 Wind Speed: <%= @weather[:wind_speed] %> m/s</p>
+<% elsif @error %>
+  <p style="color:red;"><%= @error %></p>
+<% end %>
