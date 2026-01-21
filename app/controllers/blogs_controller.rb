@@ -1,6 +1,7 @@
 class BlogsController < ApplicationController
 
   # include Common
+  # helper_method :demo_method
 
   before_action :set_blog, except: [:index, :new, :create]
   before_action :authenticate_user!

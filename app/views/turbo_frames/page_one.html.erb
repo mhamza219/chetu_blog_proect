@@ -1,0 +1,15 @@
+<h1>Page One</h1>
+
+<%#= turbo_frame_tag 'page-one' do%>
+  <%#= link_to 'load page two', turbo_frame_two_path %>
+<%#end%>
+
+<div data-controller= "greet">
+  <button data-action="greet#Hii">Greet</button>
+  <p>Hiii</p>
+</div>
+
+<div>
+  PIN: <input type="text" value="1234" readonly>
+  <button>Copy to Clipboard</button>
+</div>

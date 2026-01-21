@@ -1,0 +1,27 @@
+<h3>Chats</h3>
+
+<%= link_to "New Group", new_room_path, class: "btn btn-primary" %>
+
+<ul>
+  <% @rooms.each do |room| %>
+    <li>
+      <%= link_to room.name || room.users.where.not(id: current_user.id).first.email,
+                  room_path(room) %>
+    </li>
+  <% end %>
+</ul>
+
+<hr>
+
+<h4>Start New Chat</h4>
+
+<ul>
+  <% User.where.not(id: current_user.id).each do |user| %>
+    <li>
+      <%= button_to "Chat with #{user.email}",
+          rooms_path(user_id: user.id),
+          method: :post,
+          data: { turbo: false } %>
+    </li>
+  <% end %>
+</ul>

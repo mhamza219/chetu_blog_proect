@@ -18,6 +18,15 @@ Rails.application.routes.draw do
 
   get "weather", to: "weather#index"
 
+  get "turbo_frame_one", to: "turbo_frames#page_one"
+  get "turbo_frame_two", to: "turbo_frames#page_two"
+
+  resources :rooms do
+    resources :messages
+  end
+
+  # post 'create_private_room/:user_id', to: 'rooms#create_private_room'
+
   # get "/blogs", to: "blog#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -1,0 +1,13 @@
+<% if @room.present? %>
+  <h3><%= @room.name.presence || "Chat" %></h3>
+
+  <%= turbo_stream_from @room %>
+
+  <div id="messages">
+    <%= render @messages %>
+  </div>
+
+  <%= render "messages/form", room: @room %>
+<% else %>
+  <p>Room not found</p>
+<% end %>
