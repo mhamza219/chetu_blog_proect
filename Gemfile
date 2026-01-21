@@ -30,7 +30,7 @@ gem 'activeadmin'
 
 gem 'sassc-rails'
 
-gem 'tailwindcss-rails'
+# gem 'tailwindcss-rails'
 
 gem 'faker'
 
