@@ -30,6 +30,8 @@ gem 'activeadmin'
 
 gem 'sassc-rails'
 
+gem 'tailwindcss-rails'
+
 gem 'faker'
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]

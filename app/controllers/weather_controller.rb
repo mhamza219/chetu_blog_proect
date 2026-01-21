@@ -2,6 +2,7 @@ require "net/http"
 require "json"
 
 class WeatherController < ApplicationController
+  
   def index
     city = params[:city] || "Delhi"
     data = WeatherService.fetch(city)

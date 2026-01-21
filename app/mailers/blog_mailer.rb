@@ -2,7 +2,6 @@ class BlogMailer < ApplicationMailer
   default from: "no-reply@example.com"
 
   def blog_created(blog)
-    # byebug
     @blog = blog
     @user = blog.user
     mail(to: @user.email, subject: "Your blog has been created")

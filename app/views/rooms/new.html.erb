@@ -1,0 +1,18 @@
+<h3>Create Group</h3>
+
+<%= form_with model: @room do |f| %>
+  <div>
+    <%= f.label :name, "Group Name" %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div>
+    <%= f.label :users %><br>
+    <% @users.each do |user| %>
+      <%= check_box_tag "room[user_ids][]", user.id %>
+      <%= user.email %><br>
+    <% end %>
+  </div>
+
+  <%= f.submit "Create Group" %>
+<% end %>

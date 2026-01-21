@@ -6,6 +6,11 @@ class User < ApplicationRecord
 
   has_many :blogs
 
+  has_many :messages
+  has_many :participants
+  has_many :rooms, through: :participants
+
+
   def self.ransackable_attributes(auth_object = nil)
     # %w[id email created_at updated_at]
     column_names
