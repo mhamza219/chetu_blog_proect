@@ -13,14 +13,16 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
+    apt-get install --no-install-recommends -y \
+    curl libvips postgresql-client libjemalloc2 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development test"
+    LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -40,7 +42,8 @@ RUN bundle install && \
 COPY . .
 
 # Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
+# RUN bundle exec bootsnap precompile app/ lib/
+RUN bundle exec bootsnap precompile --gemfile
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
