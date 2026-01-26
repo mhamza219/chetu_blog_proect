@@ -1,0 +1,12 @@
+<div class="container mt-5">
+  <div class="alert alert-success text-center py-5">
+    <h1 class="display-4">Thank You!</h1>
+    <p class="lead">Your payment has been processed successfully.</p>
+    <hr>
+    <% if @order %>
+      <p>Order ID: <strong><%= @order.id %></strong></p>
+      <p>Total Paid: <%= number_to_currency(@order.total / 100.0) %></p>
+    <% end %>
+    <%= link_to "Continue Shopping", root_path, class: "btn btn-outline-success mt-3" %>
+  </div>
+</div>

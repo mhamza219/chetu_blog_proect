@@ -24,6 +24,7 @@ gem 'sidekiq'
 
 gem 'dotenv-rails'
 gem 'twilio-ruby'
+gem 'stripe'
 
 gem 'devise'
 

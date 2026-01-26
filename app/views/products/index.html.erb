@@ -1,0 +1,8 @@
+<% @products.each do |product| %>
+  <div>
+    <h3><%= product.title %></h3>
+    <p><%= number_to_currency(product.price / 100.0) %></p>
+    
+    <%= button_to "Add to Cart", add_item_cart_path(product_id: product.id), method: :post, class: "btn btn-primary" %>
+  </div>
+<% end %>

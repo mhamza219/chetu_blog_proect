@@ -1,0 +1,80 @@
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Order #<%= @order.id %></h1>
+    <%= link_to '← Back to History', orders_path, class: 'btn btn-outline-secondary' %>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white font-weight-bold">
+          Items in this Order
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th>Product</th>
+                <th class="text-center">Price</th>
+                <th class="text-center">Qty</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @line_items.each do |item| %>
+                <tr>
+                  <td>
+                    <strong><%= item.product&.title %></strong><br>
+                    <small class="text-muted"><%= item.product&.description %></small>
+                  </td>
+                  <td class="text-center"><%= number_to_currency(item.product&.price / 100.0) %></td>
+                  <td class="text-center">x <%= item.quantity %></td>
+                  <td class="text-right font-weight-bold">
+                    <%= number_to_currency((item.product&.price * item.quantity) / 100.0) %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot class="bg-light">
+              <tr>
+                <td colspan="3" class="text-right font-weight-bold border-top-0">Grand Total:</td>
+                <td class="text-right font-weight-bold border-top-0 text-info" style="font-size: 1.2rem;">
+                  <%= number_to_currency(@order.total / 100.0) %>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white font-weight-bold">Order Summary</div>
+        <div class="card-body">
+          <p class="mb-2"><strong>Status:</strong> 
+            <% if @order.status == 'paid' %>
+              <span class="badge badge-success px-3 py-2" style="background-color: #28a745 !important; color: white !important;">PAID</span>
+            <% else %>
+              <span class="badge badge-warning px-3 py-2" style="background-color: #ffc107 !important; color: #212529 !important;">PENDING</span>
+            <% end %>
+          </p>
+          <p class="mb-2"><strong>Date:</strong> <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+          <p class="mb-0"><strong>Customer:</strong> <%= current_user.email %></p>
+        </div>
+      </div>
+
+      <% if @transaction %>
+        <div class="card shadow-sm border-info">
+          <div class="card-header bg-info text-white font-weight-bold">Payment Details</div>
+          <div class="card-body small">
+            <p class="mb-1"><strong>Stripe ID:</strong><br> <code class="text-info"><%= @transaction.stripe_id %></code></p>
+            <p class="mb-1"><strong>Card Brand:</strong> <%= @transaction.card_brand&.upcase %></p>
+            <p class="mb-1"><strong>Card Last 4:</strong> **** <%= @transaction.last4 %></p>
+            <p class="mb-0"><strong>Processed:</strong> <%= @transaction.created_at.strftime("%d %b %Y") %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
