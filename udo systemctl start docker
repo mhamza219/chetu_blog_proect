@@ -1,0 +1,18 @@
+● docker.service - Docker Application Container Engine
+     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+     Active: inactive (dead) since Sat 2026-01-24 14:37:54 IST; 9min ago
+TriggeredBy: ● docker.socket
+       Docs: https://docs.docker.com
+    Process: 1651 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock (code=exited, status=0/SUCCESS)
+   Main PID: 1651 (code=exited, status=0/SUCCESS)
+
+Jan 24 09:38:41 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T09:38:40.082171329+05:30" level=info msg="Loading containers: done."
+Jan 24 09:38:41 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T09:38:40.100776698+05:30" level=info msg="Docker daemon" commit="26.1.3-0ubuntu1~20.04.1" containerd-snapshotter=false storage-driver=overlay2 version=26.1.3
+Jan 24 09:38:41 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T09:38:40.100954499+05:30" level=info msg="Daemon has completed initialization"
+Jan 24 09:38:41 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T09:38:40.141781774+05:30" level=info msg="API listen on /run/docker.sock"
+Jan 24 14:37:54 dell-Latitude-5410 systemd[1]: Stopping Docker Application Container Engine...
+Jan 24 14:37:54 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T14:37:54.683068540+05:30" level=info msg="Processing signal 'terminated'"
+Jan 24 14:37:54 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T14:37:54.688438728+05:30" level=info msg="stopping event stream following graceful shutdown" error="<nil>" module=libcontainerd namespace=moby
+Jan 24 14:37:54 dell-Latitude-5410 dockerd[1651]: time="2026-01-24T14:37:54.689994029+05:30" level=info msg="Daemon shutdown complete"
+Jan 24 14:37:54 dell-Latitude-5410 systemd[1]: docker.service: Succeeded.
+Jan 24 14:37:54 dell-Latitude-5410 systemd[1]: Stopped Docker Application Container Engine.

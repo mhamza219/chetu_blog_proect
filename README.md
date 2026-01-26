@@ -35,3 +35,11 @@ controller (strong_params)
 INCUDE
 
 controller: rails g controller blogs index new create update delete edit
+
+
+
+
+Cashfree integration:
+https://www.cashfree.com/docs/api-reference/payments/latest/orders/create
+
+https://merchant.cashfree.com/merchants/pg/developers/api-keys?env=test

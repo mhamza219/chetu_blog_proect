@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+
+  web:
+    image: mhamza219/chetu_blog:latest
+    ports:
+      - "3000:3000"
+    environment:
+      # Use 'db' as the hostname because that is the service name above
+      DATABASE_URL: postgres://postgres:password@db:5432/postgres
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    depends_on:
+      - db
+
+# --- ADD THIS SECTION AT THE VERY BOTTOM ---
+volumes:
+  postgres_data:

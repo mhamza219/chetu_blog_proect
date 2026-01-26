@@ -1,0 +1,21 @@
+[0;1;32m●[0m docker.service - Docker Application Container Engine
+     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Sat 2026-01-24 15:03:31 IST; 12s ago
+TriggeredBy: [0;1;32m●[0m docker.socket
+       Docs: https://docs.docker.com
+   Main PID: 23465 (dockerd)
+      Tasks: 13
+     Memory: 21.3M
+     CGroup: /system.slice/docker.service
+             └─23465 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+
+Jan 24 15:03:30 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:30.897581179+05:30" level=info msg="Loading containers: start."
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.024066412+05:30" level=warning msg="Error (Unable to complete atomic operation, key modified) deleting object [endpoint_count 07d888c54fdefc00850db0d9489b27cbfd6f2e9bf64f52a340cb2d43a13f1755], retrying...."
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.067736531+05:30" level=warning msg="error locating sandbox id e684d7200e59eacf3185f24c166d5b3d05356bbc8b77b29ccfe6cdfa49989013: sandbox e684d7200e59eacf3185f24c166d5b3d05356bbc8b77b29ccfe6cdfa49989013 not found"
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.067815768+05:30" level=info msg="Loading containers: done."
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.079154876+05:30" level=info msg="Docker daemon" commit=01f442b containerd-snapshotter=false storage-driver=overlay2 version=28.1.1
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.079197312+05:30" level=info msg="Initializing buildkit"
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.091783035+05:30" level=info msg="Completed buildkit initialization"
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.095201818+05:30" level=info msg="Daemon has completed initialization"
+Jan 24 15:03:31 dell-Latitude-5410 dockerd[23465]: time="2026-01-24T15:03:31.095245575+05:30" level=info msg="API listen on /run/docker.sock"
+Jan 24 15:03:31 dell-Latitude-5410 systemd[1]: Started Docker Application Container Engine.
