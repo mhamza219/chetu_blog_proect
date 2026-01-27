@@ -62,3 +62,12 @@ development:
   encoding: unicode
   pool: 5
   port: 5432
+
+test:
+  adapter: postgresql # or sqlite3 / mysql2
+  encoding: unicode
+  database: chetu_blog_new_test
+  pool: 5
+  username: postgres
+  password: netambit
+  host: localhost

@@ -8,7 +8,6 @@ on:
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,22 +18,20 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      # ADDED --no-ensure-latest to prevent exit code 5
       - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+        run: bin/brakeman --no-pager --no-ensure-latest
 
   scan_js:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
@@ -43,6 +40,40 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Lint code for consistent style
+        run: bin/rubocop -f github
+
+  test:
+    runs-on: ubuntu-latest
+
+    # This spins up a real Postgres database in the background
+    services:
+      postgres:
+        image: postgres:14 # You can change this to your version (e.g., 15, 16)
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: netambit
+        # Wait for postgres to be ready before starting tests
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Install packages
+        # Added libpq-dev so the 'pg' gem can compile/install
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips libpq-dev
+
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -50,18 +81,25 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          # This tells Rails exactly how to connect to the service above
+          DATABASE_URL: "postgres://postgres:password@localhost:5432/chetu_blog_new_test"
+        run: |
+          bin/rails db:test:prepare
+          bin/rails test test:system
 
-  test:
+      - name: Keep screenshots from failed system tests
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: ${{ github.workspace }}/tmp/screenshots
+          if-no-files-found: ignore
+
+  # test:
     runs-on: ubuntu-latest
-
-    # services:
-    #  redis:
-    #    image: redis
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips sqlite3
@@ -78,7 +116,8 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
+          # Force Rails to use SQLite in CI if you don't have a PG/MySQL service setup
+          DATABASE_URL: "sqlite3::memory:" 
         run: bin/rails db:test:prepare test test:system
 
       - name: Keep screenshots from failed system tests
@@ -88,3 +127,109 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: CI
+
+# on:
+#   pull_request:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   scan_ruby:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+
+#       - name: Scan for common Rails security vulnerabilities using static analysis
+#         run: bin/brakeman --no-pager
+
+#   scan_js:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+
+#       - name: Scan for security vulnerabilities in JavaScript dependencies
+#         run: bin/importmap audit
+
+#   lint:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+
+#       - name: Lint code for consistent style
+#         run: bin/rubocop -f github
+
+#   test:
+#     runs-on: ubuntu-latest
+
+#     # services:
+#     #  redis:
+#     #    image: redis
+#     #    ports:
+#     #      - 6379:6379
+#     #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+#     steps:
+#       - name: Install packages
+#         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips sqlite3
+
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+
+#       - name: Run tests
+#         env:
+#           RAILS_ENV: test
+#           # REDIS_URL: redis://localhost:6379/0
+#         run: bin/rails db:test:prepare test test:system
+
+#       - name: Keep screenshots from failed system tests
+#         uses: actions/upload-artifact@v4
+#         if: failure()
+#         with:
+#           name: screenshots
+#           path: ${{ github.workspace }}/tmp/screenshots
+#           if-no-files-found: ignore
