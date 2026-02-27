@@ -26,6 +26,8 @@ gem 'dotenv-rails'
 gem 'twilio-ruby'
 gem 'stripe'
 
+gem 'rack-attack'
+
 gem 'devise'
 
 gem 'activeadmin'
@@ -73,4 +75,12 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+end
+
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+
+  # Use console on exceptions pages [https://github.com/rails/web-console]
+  # gem "web-console"
 end

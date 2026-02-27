@@ -16,6 +16,9 @@ require "json"
 class WeatherService
   def self.fetch(city)
     api_key = ENV["WEATHER_API_KEY"]
+    # api_key = ENV.fetch('WEATHER_API_KEY')
+
+
     return { error: "API key missing" } if api_key.blank?
 
     url = URI("https://api.openweathermap.org/data/2.5/weather?q=#{city}&units=metric&appid=#{api_key}")
