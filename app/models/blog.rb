@@ -2,14 +2,15 @@ class Blog < ApplicationRecord
   validates :title, presence: true, uniqueness: true
   belongs_to :user,touch: true
 
-  after_create_commit :send_created_email
-  after_destroy_commit :send_deleted_email
+  # after_create_commit :send_created_email
+  # after_destroy_commit :send_deleted_email
 
-  enum status: {
-    draft: 0,
-    published: 1
-  }
-
+  # enum status: {
+  #   draft: 0,
+  #   published: 1
+  # }
+  enum :status, { draft: 0, published: 1 }
+  
   has_many_attached :images
   has_one_attached :video
 

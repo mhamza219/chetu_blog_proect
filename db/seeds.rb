@@ -8,9 +8,12 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 # AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
-10.times do |i|
-  Blog.create(title: Faker::Name.name, description: Faker::Markdown.emphasis, user_id: 2 )
-end
+# User.create(email: "albert@gmail.com", password: "11111111", password_confirmation: "11111111") if Rails.env.development?
+# 10.times do |i|
+#   puts "adsad"
+#   Blog.create!(title: Faker::Name.name, description: Faker::Markdown.emphasis, user_id: 5 )
+#   puts "exit"
+# end
 
 # Product.destroy_all
 

@@ -1,23 +1,20 @@
 Rails.application.routes.draw do
-  get "orders/index"
-  get "orders/show"
-  get "payment_status_page/success"
-  get "payment_status_page/cancel"
-  get "weather/index"
+
   require "sidekiq/web" # require the web UI
 
-  Rails.application.routes.draw do
-  get "orders/index"
-  get "orders/show"
-  get "payment_status_page/success"
-  get "payment_status_page/cancel"
-  get "weather/index"
+  # get "orders/index"
+  # get "orders/show"
+  # get "payment_status_page/success"
+  # get "payment_status_page/cancel"
+  # get "weather/index"
     mount Sidekiq::Web => "/sidekiq" # access it at http://localhost:3000/sidekiq
-  end
+
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
-  devise_for :users
-  
+  # devise_for :users
+   devise_for :users, controllers: {
+        sessions: 'users/sessions'
+      }
   resources :blogs do
     member do
       get :update_blog_status

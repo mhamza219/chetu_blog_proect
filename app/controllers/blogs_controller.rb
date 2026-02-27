@@ -10,7 +10,7 @@ class BlogsController < ApplicationController
   def index
     # byebug
     if user_signed_in?
-      @blogs = Blog.where(user_id: current_user.id).or(Blog.where.not(user_id: current_user.id).published)
+      # @blogs = Blog.where(user_id: current_user.id).or(Blog.where.not(user_id: current_user.id).published)
       @blogs = Blog
       .includes(:user) # add other associations if needed
       .where(user_id: current_user.id)
@@ -41,8 +41,10 @@ class BlogsController < ApplicationController
   end
 
   def create
+    # byebug
     @blog = current_user.blogs.new(blog_params)
     if @blog.save
+      # render json: {data: @blog}, status: :created
       redirect_to blogs_path
     else
       render 'new'
@@ -61,6 +63,7 @@ class BlogsController < ApplicationController
   end
 
   def destroy
+    # byebug
     @blog.destroy
     redirect_to blogs_path
   end
