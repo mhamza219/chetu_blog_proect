@@ -415,8 +415,8 @@
 }
 </style>
 
-<div class="wa-container">
-  <div id="current-user-info" data-id="<%= current_user.id %>" class="d-none"></div>
+<div class="wa-container" data-controller="chat call" data-action="click->chat#closeDropdown" data-call-user-id-value="<%= current_user.id %>">
+  <div id="current-user-info" data-id="<%= current_user.id %>" data-chat-target="currentUser" class="d-none"></div>
   <!-- Left Sidebar -->
   <div class="wa-sidebar">
     <div class="wa-sidebar-header">
@@ -429,7 +429,7 @@
         <% end %>
         
         <!-- Dropdown trigger to start new direct chat with a user -->
-        <button class="header-action-btn" id="new-chat-trigger" title="New Chat">
+        <button class="header-action-btn" id="new-chat-trigger" title="New Chat" data-action="click->chat#toggleDropdown">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
         </button>
       </div>
@@ -439,12 +439,12 @@
     <div class="wa-sidebar-search">
       <div class="search-bar-wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-bar-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="chat-search-input" placeholder="Search or start new chat" class="search-bar-input" autocomplete="off" />
+        <input type="text" id="chat-search-input" placeholder="Search or start new chat" class="search-bar-input" autocomplete="off" data-chat-target="searchQuery" data-action="input->chat#filterRooms" />
       </div>
     </div>
 
     <!-- Users list popup (toggled by new chat button) -->
-    <div id="new-chat-dropdown" class="wa-rooms-list d-none" style="border-bottom: 2px solid #0d9488;">
+    <div id="new-chat-dropdown" class="wa-rooms-list d-none" data-chat-target="dropdown" style="border-bottom: 2px solid #0d9488;">
       <div class="px-3 py-2 text-muted" style="font-size: 0.85rem; font-weight: 500; text-transform: uppercase;">
         Select Contact
       </div>
@@ -504,14 +504,41 @@
             <% end %>
           </div>
         </div>
+
+        <% unless @room.is_group? %>
+          <% other_user = @room.users.where.not(id: current_user.id).first %>
+          <% if other_user %>
+            <div class="header-actions" style="margin-left: auto; display: flex; gap: 12px;">
+              <!-- Audio Call Trigger -->
+              <button class="header-action-btn" 
+                      data-action="click->call#startCall" 
+                      data-target-user-id="<%= other_user.id %>" 
+                      data-target-user-name="<%= other_user.display_name.presence || other_user.email.split('@').first.capitalize %>"
+                      data-call-type="audio" 
+                      title="Start Voice Call">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 3 3 2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              </button>
+              
+              <!-- Video Call Trigger -->
+              <button class="header-action-btn" 
+                      data-action="click->call#startCall" 
+                      data-target-user-id="<%= other_user.id %>" 
+                      data-target-user-name="<%= other_user.display_name.presence || other_user.email.split('@').first.capitalize %>"
+                      data-call-type="video" 
+                      title="Start Video Call">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-video"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+              </button>
+            </div>
+          <% end %>
+        <% end %>
       </div>
 
       <!-- Action Cable Turbo Stream Listener -->
       <%= turbo_stream_from @room %>
 
       <!-- Messages Body -->
-      <div class="wa-chat-body" id="messages-body-container">
-        <div id="messages" class="d-flex flex-column gap-2">
+      <div class="wa-chat-body" id="messages-body-container" data-chat-target="body">
+        <div id="messages" class="d-flex flex-column gap-2" data-chat-target="messages">
           <%= render @messages %>
         </div>
       </div>
@@ -531,138 +558,8 @@
       </div>
     <% end %>
   </div>
+  
+  <%= render "rooms/call_overlay" %>
 </div>
 
-<script>
-document.addEventListener("turbo:load", function() {
-  // Toggle new chat contacts dropdown
-  const trigger = document.getElementById("new-chat-trigger");
-  const dropdown = document.getElementById("new-chat-dropdown");
-  
-  if (trigger && dropdown) {
-    trigger.addEventListener("click", function(e) {
-      e.stopPropagation();
-      dropdown.classList.toggle("d-none");
-    });
-    
-    // Close dropdown on click outside
-    document.addEventListener("click", function(e) {
-      if (!dropdown.classList.contains("d-none") && !dropdown.contains(e.target) && e.target !== trigger) {
-        dropdown.classList.add("d-none");
-      }
-    });
-  }
 
-  // Live sidebar room filtering
-  const searchInput = document.getElementById("chat-search-input");
-  const roomsContainer = document.getElementById("rooms-list-container");
-  
-  if (searchInput && roomsContainer) {
-    searchInput.addEventListener("input", function() {
-      const query = searchInput.value.trim().toLowerCase();
-      const items = roomsContainer.querySelectorAll(".room-item-link");
-      
-      items.forEach(link => {
-        const item = link.querySelector(".wa-room-item");
-        const name = item.dataset.roomName || "";
-        
-        if (name.includes(query)) {
-          link.style.display = "";
-        } else {
-          link.style.display = "none";
-        }
-      });
-    });
-  }
-
-  // Style message bubbles based on sender ID compared to logged-in user ID
-  function styleMessages() {
-    const currentUserInfo = document.getElementById("current-user-info");
-    if (!currentUserInfo) return;
-    const currentUserId = currentUserInfo.dataset.id;
-    
-    const messages = document.querySelectorAll(".msg-container");
-    messages.forEach(msg => {
-      const senderId = msg.dataset.senderId;
-      const bubble = msg.querySelector(".msg-bubble");
-      if (!bubble) return;
-      
-      if (senderId === currentUserId) {
-        msg.classList.remove("justify-content-start");
-        msg.classList.add("justify-content-end");
-        bubble.classList.remove("msg-bubble-incoming");
-        bubble.classList.add("msg-bubble-outgoing");
-        
-        const senderName = bubble.querySelector(".msg-sender-name");
-        if (senderName) senderName.style.display = "none";
-
-        // Show ticks for outgoing messages
-        const ticks = msg.querySelector(".msg-status-ticks");
-        if (ticks) ticks.classList.remove("d-none");
-      } else {
-        msg.classList.remove("justify-content-end");
-        msg.classList.add("justify-content-start");
-        bubble.classList.remove("msg-bubble-outgoing");
-        bubble.classList.add("msg-bubble-incoming");
-
-        // Hide ticks for incoming messages
-        const ticks = msg.querySelector(".msg-status-ticks");
-        if (ticks) ticks.classList.add("d-none");
-
-        // If message is unread, mark it as read on the server
-        if (msg.dataset.read === "false") {
-          markMessageAsRead(msg);
-        }
-      }
-    });
-  }
-
-  function markMessageAsRead(msgElement) {
-    const chatMain = document.querySelector(".wa-chat-main");
-    if (!chatMain) return;
-    const roomId = chatMain.dataset.roomId;
-    const messageId = msgElement.dataset.messageId;
-    if (!roomId || !messageId) return;
-    
-    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-    const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : "";
-    
-    // Set local dataset to "true" instantly so we don't spam requests
-    msgElement.dataset.read = "true";
-    
-    fetch(`/rooms/${roomId}/messages/${messageId}/read`, {
-      method: "POST",
-      headers: {
-        "X-CSRF-Token": csrfToken,
-        "Accept": "application/json"
-      }
-    }).then(response => {
-      if (!response.ok) {
-        msgElement.dataset.read = "false";
-      }
-    }).catch(err => {
-      msgElement.dataset.read = "false";
-    });
-  }
-
-  // Run initial bubble styling
-  styleMessages();
-
-  // Auto scroll to bottom of chat body on load & when new messages arrive
-  const bodyContainer = document.getElementById("messages-body-container");
-  if (bodyContainer) {
-    bodyContainer.scrollTop = bodyContainer.scrollHeight;
-    
-    // Watch for new messages appended to container to auto-scroll and apply styling
-    const observer = new MutationObserver(function() {
-      styleMessages();
-      bodyContainer.scrollTop = bodyContainer.scrollHeight;
-    });
-    
-    const messagesDiv = document.getElementById("messages");
-    if (messagesDiv) {
-      observer.observe(messagesDiv, { childList: true });
-    }
-  }
-});
-</script>
