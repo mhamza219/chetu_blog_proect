@@ -14,7 +14,8 @@ class RoomsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @rooms = current_user.rooms
+    @rooms = current_user.rooms.includes(:users, :last_message).order("messages.created_at DESC NULLS LAST").references(:messages)
+    @users = User.where.not(id: current_user.id)
   end
 
   def new
@@ -23,6 +24,8 @@ class RoomsController < ApplicationController
   end
 
   def show
+    @rooms = current_user.rooms.includes(:users, :last_message).order("messages.created_at DESC NULLS LAST").references(:messages)
+    @users = User.where.not(id: current_user.id)
     @room = Room.find(params[:id])
 
     unless @room.users.include?(current_user)
@@ -30,7 +33,13 @@ class RoomsController < ApplicationController
       return
     end
 
+    # Mark other users' messages in this room as read
+    @room.messages.where.not(user_id: current_user.id).where(read: false).each do |msg|
+      msg.update(read: true)
+    end
+
     @messages = @room.messages.includes(:user).order(:created_at)
+    render :index
   end
 
   def create

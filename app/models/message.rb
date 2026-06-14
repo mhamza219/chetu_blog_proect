@@ -8,4 +8,11 @@ class Message < ApplicationRecord
       partial: "messages/message",
       locals: { message: self }
   }
+
+  after_update_commit -> {
+    broadcast_replace_to room,
+      target: self,
+      partial: "messages/message",
+      locals: { message: self }
+  }
 end

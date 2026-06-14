@@ -1,18 +1,206 @@
-<h3>Create Group</h3>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-<%= form_with model: @room do |f| %>
-  <div>
-    <%= f.label :name, "Group Name" %>
-    <%= f.text_field :name %>
+.new-group-container {
+  font-family: 'Outfit', sans-serif;
+  background-color: #0b141a;
+  min-height: calc(100vh - 56px);
+  color: #e9edef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.new-group-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: #111b21;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.card-header-premium {
+  background-color: #202c33;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-title-premium {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #e9edef;
+}
+
+.card-body-premium {
+  padding: 28px 24px;
+}
+
+.form-group-premium {
+  margin-bottom: 24px;
+}
+
+.form-label-premium {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8696a0;
+  margin-bottom: 8px;
+}
+
+.form-input-premium {
+  width: 100%;
+  background-color: #202c33;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #e9edef;
+  font-size: 1rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-input-premium:focus {
+  border-color: #00a884;
+  box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.15);
+}
+
+.users-list-scrollable {
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #202c33;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.user-checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.user-checkbox-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.user-checkbox-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #8696a0;
+  border-radius: 4px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-checkbox-input:checked {
+  background-color: #00a884;
+  border-color: #00a884;
+}
+
+.user-checkbox-input:checked::before {
+  content: "✓";
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.user-checkbox-email {
+  font-size: 0.95rem;
+  color: #e9edef;
+}
+
+.btn-submit-premium {
+  width: 100%;
+  background-color: #00a884;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-submit-premium:hover {
+  background-color: #008f72;
+}
+
+.btn-submit-premium:active {
+  transform: scale(0.98);
+}
+
+.back-link-premium {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: #8696a0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.back-link-premium:hover {
+  color: #e9edef;
+  text-decoration: none;
+}
+
+/* Custom Scrollbar for users list */
+.users-list-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+.users-list-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+.users-list-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+</style>
+
+<div class="new-group-container">
+  <div class="new-group-card">
+    <div class="card-header-premium">
+      <h3 class="card-title-premium">Create New Group</h3>
+    </div>
+    <div class="card-body-premium">
+      <%= form_with model: @room, local: true do |f| %>
+        <div class="form-group-premium">
+          <%= f.label :name, "Group Name", class: "form-label-premium" %>
+          <%= f.text_field :name, placeholder: "e.g. Project Team", class: "form-input-premium", required: true, autocomplete: "off" %>
+        </div>
+
+        <div class="form-group-premium">
+          <label class="form-label-premium">Add Participants</label>
+          <div class="users-list-scrollable">
+            <% @users.each do |user| %>
+              <label class="user-checkbox-item">
+                <%= check_box_tag "room[user_ids][]", user.id, false, class: "user-checkbox-input" %>
+                <span class="user-checkbox-email"><%= user.email %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <%= f.submit "Create Group", class: "btn-submit-premium" %>
+      <% end %>
+      
+      <%= link_to "Cancel", rooms_path, class: "back-link-premium" %>
+    </div>
   </div>
-
-  <div>
-    <%= f.label :users %><br>
-    <% @users.each do |user| %>
-      <%= check_box_tag "room[user_ids][]", user.id %>
-      <%= user.email %><br>
-    <% end %>
-  </div>
-
-  <%= f.submit "Create Group" %>
-<% end %>
+</div>
