@@ -22,12 +22,17 @@ Rails.application.routes.draw do
   end
 
   get "weather", to: "weather#index"
+  resource :profile, only: [:edit, :update]
 
   get "turbo_frame_one", to: "turbo_frames#page_one"
   get "turbo_frame_two", to: "turbo_frames#page_two"
 
   resources :rooms do
-    resources :messages
+    resources :messages do
+      member do
+        post :read
+      end
+    end
   end
 
   resources :products

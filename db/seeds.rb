@@ -11,7 +11,7 @@
 # User.create(email: "albert@gmail.com", password: "11111111", password_confirmation: "11111111") if Rails.env.development?
 # 10.times do |i|
 #   puts "adsad"
-#   Blog.create!(title: Faker::Name.name, description: Faker::Markdown.emphasis, user_id: 5 )
+#   Blog.create!(title: Faker::Name.name, description: Faker::Markdown.emphasis, user_id: 1 )
 #   puts "exit"
 # end
 

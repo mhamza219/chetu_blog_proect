@@ -1,27 +1,668 @@
-<h3>Chats</h3>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-<%= link_to "New Group", new_room_path, class: "btn btn-primary" %>
+.wa-container {
+  font-family: 'Outfit', sans-serif;
+  height: calc(100vh - 56px); /* full height minus navbar */
+  display: flex;
+  background-color: #0b141a;
+  color: #e9edef;
+  overflow: hidden;
+}
 
-<ul>
-  <% @rooms.each do |room| %>
-    <li>
-      <%= link_to room.name || room.users.where.not(id: current_user.id).first.email,
-                  room_path(room) %>
-    </li>
-  <% end %>
-</ul>
+/* Sidebar */
+.wa-sidebar {
+  width: 380px;
+  min-width: 320px;
+  background-color: #111b21;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+}
 
-<hr>
+.wa-sidebar-header {
+  height: 60px;
+  background-color: #202c33;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-<h4>Start New Chat</h4>
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #536471;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-<ul>
-  <% User.where.not(id: current_user.id).each do |user| %>
-    <li>
-      <%= button_to "Chat with #{user.email}",
-          rooms_path(user_id: user.id),
-          method: :post,
-          data: { turbo: false } %>
-    </li>
-  <% end %>
-</ul>
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.header-action-btn {
+  background: transparent;
+  border: none;
+  color: #aebac1;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.header-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #e9edef;
+}
+
+.wa-sidebar-search {
+  padding: 8px 12px;
+  background-color: #111b21;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.search-bar-wrapper {
+  background-color: #202c33;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+}
+
+.search-bar-icon {
+  color: #8696a0;
+  margin-right: 8px;
+}
+
+.search-bar-input {
+  background: transparent;
+  border: none;
+  color: #e9edef;
+  width: 100%;
+  outline: none;
+  font-size: 0.95rem;
+  padding: 6px 0;
+}
+
+.search-bar-input::placeholder {
+  color: #8696a0;
+}
+
+.wa-rooms-list {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #111b21;
+}
+
+.room-item-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.room-item-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.wa-room-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.wa-room-item:hover {
+  background-color: #202c33;
+}
+
+.wa-room-item.active {
+  background-color: #2a3942;
+}
+
+.room-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.room-item-content {
+  flex: 1;
+  min-width: 0; /* allows text truncation */
+}
+
+.room-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.room-name {
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: #e9edef;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.room-time {
+  font-size: 0.8rem;
+  color: #8696a0;
+  flex-shrink: 0;
+}
+
+.room-bottom-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-last-msg {
+  font-size: 0.88rem;
+  color: #8696a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat Main View */
+.wa-chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #0b141a;
+  position: relative;
+}
+
+/* Placeholder panel */
+.wa-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #222e35;
+  text-align: center;
+  padding: 40px;
+}
+
+.wa-placeholder-icon {
+  font-size: 5rem;
+  color: #8696a0;
+  margin-bottom: 20px;
+}
+
+.wa-placeholder-title {
+  font-size: 2rem;
+  font-weight: 300;
+  color: #e9edef;
+  margin-bottom: 12px;
+}
+
+.wa-placeholder-subtitle {
+  font-size: 0.95rem;
+  color: #8696a0;
+  max-width: 450px;
+  line-height: 1.5;
+}
+
+/* Active Chat panel */
+.wa-chat-header {
+  height: 60px;
+  background-color: #202c33;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wa-chat-title-wrapper {
+  flex: 1;
+}
+
+.wa-chat-title {
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #e9edef;
+  margin-bottom: 2px;
+}
+
+.wa-chat-status {
+  font-size: 0.8rem;
+  color: #8696a0;
+}
+
+/* Messages area */
+.wa-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #0b141a;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Input area */
+.wa-chat-footer {
+  min-height: 62px;
+  background-color: #202c33;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Custom Scrollbar for sidebar & body */
+.wa-rooms-list::-webkit-scrollbar,
+.wa-chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+.wa-rooms-list::-webkit-scrollbar-track,
+.wa-chat-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.wa-rooms-list::-webkit-scrollbar-thumb,
+.wa-chat-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+/* Messages styling */
+.msg-bubble {
+  position: relative;
+  max-width: 65%;
+  border-radius: 8px;
+  padding: 6px 12px 18px 12px;
+  box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.2);
+  min-width: 80px;
+}
+
+.msg-bubble-incoming {
+  background-color: #202c33;
+  color: #e9edef;
+  border-top-left-radius: 0;
+}
+
+.msg-bubble-outgoing {
+  background-color: #005c4b;
+  color: #e9edef;
+  border-top-right-radius: 0;
+}
+
+.msg-sender-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #25d366; /* green color for name */
+  margin-bottom: 2px;
+}
+
+.msg-text-content {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.msg-timestamp-row {
+  position: absolute;
+  bottom: 2px;
+  right: 7px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.msg-timestamp {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.msg-status-ticks {
+  display: flex;
+  align-items: center;
+}
+
+.text-unread-grey {
+  color: #8696a0;
+}
+
+.text-read-blue {
+  color: #53bdeb;
+}
+
+.animate-msg-slide {
+  animation: msgSlideIn 0.3s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+}
+
+@keyframes msgSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footer Input Area Styling */
+.input-bar-wrapper {
+  position: relative;
+}
+
+.wa-input-bar {
+  width: 100%;
+  background-color: #2a3942;
+  border: none;
+  border-radius: 8px;
+  color: #e9edef;
+  font-size: 0.95rem;
+  padding: 9px 12px;
+  outline: none;
+}
+
+.wa-input-bar::placeholder {
+  color: #8696a0;
+}
+
+.wa-send-btn {
+  background-color: #005c4b;
+  border: none;
+  color: #e9edef;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.wa-send-btn:hover {
+  background-color: #008069;
+  transform: scale(1.05);
+}
+
+.wa-send-btn:active {
+  transform: scale(0.95);
+}
+</style>
+
+<div class="wa-container">
+  <div id="current-user-info" data-id="<%= current_user.id %>" class="d-none"></div>
+  <!-- Left Sidebar -->
+  <div class="wa-sidebar">
+    <div class="wa-sidebar-header">
+      <div class="user-avatar" title="<%= current_user.email %>">
+        <%= current_user.email.first(2).upcase %>
+      </div>
+      <div class="header-actions">
+        <%= link_to new_room_path, class: "header-action-btn", title: "New Group" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <% end %>
+        
+        <!-- Dropdown trigger to start new direct chat with a user -->
+        <button class="header-action-btn" id="new-chat-trigger" title="New Chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search / Filter chats -->
+    <div class="wa-sidebar-search">
+      <div class="search-bar-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-bar-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="chat-search-input" placeholder="Search or start new chat" class="search-bar-input" autocomplete="off" />
+      </div>
+    </div>
+
+    <!-- Users list popup (toggled by new chat button) -->
+    <div id="new-chat-dropdown" class="wa-rooms-list d-none" style="border-bottom: 2px solid #0d9488;">
+      <div class="px-3 py-2 text-muted" style="font-size: 0.85rem; font-weight: 500; text-transform: uppercase;">
+        Select Contact
+      </div>
+      <% @users.each do |user| %>
+        <%= button_to rooms_path(user_id: user.id), method: :post, class: "w-100 border-0 p-0 text-start", data: { turbo: false } do %>
+          <div class="wa-room-item">
+            <div class="room-avatar" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+              <%= user.email.first(2).upcase %>
+            </div>
+            <div class="room-item-content">
+              <div class="room-name"><%= user.email.split('@').first.capitalize %></div>
+              <div class="room-last-msg"><%= user.email %></div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Rooms (Chats) List -->
+    <div class="wa-rooms-list" id="rooms-list-container">
+      <% @rooms.each do |room| %>
+        <%= link_to room_path(room), class: "room-item-link" do %>
+          <div class="wa-room-item <%= 'active' if @room.present? && @room.id == room.id %>" data-room-name="<%= room.chat_title(current_user).downcase %>">
+            <div class="room-avatar" style="<%= 'background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);' if room.is_group? %>">
+              <%= room.chat_title(current_user).first(2).upcase %>
+            </div>
+            <div class="room-item-content">
+              <div class="room-top-row">
+                <div class="room-name"><%= room.chat_title(current_user) %></div>
+                <div class="room-time"><%= room.last_message_time %></div>
+              </div>
+              <div class="room-bottom-row">
+                <div class="room-last-msg"><%= room.last_message_text %></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Right Chat View -->
+  <div class="wa-chat-main" data-room-id="<%= @room&.id %>">
+    <% if @room.present? %>
+      <!-- Chat Active Header -->
+      <div class="wa-chat-header">
+        <div class="room-avatar" style="width: 40px; height: 40px; font-size: 1.1rem; margin-right: 12px; <%= 'background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);' if @room.is_group? %>">
+          <%= @room.chat_title(current_user).first(2).upcase %>
+        </div>
+        <div class="wa-chat-title-wrapper">
+          <div class="wa-chat-title"><%= @room.chat_title(current_user) %></div>
+          <div class="wa-chat-status">
+            <% if @room.is_group? %>
+              <%= pluralize(@room.users.count, 'participant') %>: <%= @room.users.map { |u| u.email.split('@').first.capitalize }.join(', ') %>
+            <% else %>
+              online
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Cable Turbo Stream Listener -->
+      <%= turbo_stream_from @room %>
+
+      <!-- Messages Body -->
+      <div class="wa-chat-body" id="messages-body-container">
+        <div id="messages" class="d-flex flex-column gap-2">
+          <%= render @messages %>
+        </div>
+      </div>
+
+      <!-- Input Footer -->
+      <div class="wa-chat-footer">
+        <%= render "messages/form", room: @room %>
+      </div>
+    <% else %>
+      <!-- Chat Placeholder Screen -->
+      <div class="wa-placeholder">
+        <div class="wa-placeholder-icon">💬</div>
+        <h2 class="wa-placeholder-title">WhatsApp Web Clone</h2>
+        <p class="wa-placeholder-subtitle">
+          Select a chat from the sidebar or click the chat bubble icon above to start a new private message session. Real-time updates are powered by Rails Hotwire.
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener("turbo:load", function() {
+  // Toggle new chat contacts dropdown
+  const trigger = document.getElementById("new-chat-trigger");
+  const dropdown = document.getElementById("new-chat-dropdown");
+  
+  if (trigger && dropdown) {
+    trigger.addEventListener("click", function(e) {
+      e.stopPropagation();
+      dropdown.classList.toggle("d-none");
+    });
+    
+    // Close dropdown on click outside
+    document.addEventListener("click", function(e) {
+      if (!dropdown.classList.contains("d-none") && !dropdown.contains(e.target) && e.target !== trigger) {
+        dropdown.classList.add("d-none");
+      }
+    });
+  }
+
+  // Live sidebar room filtering
+  const searchInput = document.getElementById("chat-search-input");
+  const roomsContainer = document.getElementById("rooms-list-container");
+  
+  if (searchInput && roomsContainer) {
+    searchInput.addEventListener("input", function() {
+      const query = searchInput.value.trim().toLowerCase();
+      const items = roomsContainer.querySelectorAll(".room-item-link");
+      
+      items.forEach(link => {
+        const item = link.querySelector(".wa-room-item");
+        const name = item.dataset.roomName || "";
+        
+        if (name.includes(query)) {
+          link.style.display = "";
+        } else {
+          link.style.display = "none";
+        }
+      });
+    });
+  }
+
+  // Style message bubbles based on sender ID compared to logged-in user ID
+  function styleMessages() {
+    const currentUserInfo = document.getElementById("current-user-info");
+    if (!currentUserInfo) return;
+    const currentUserId = currentUserInfo.dataset.id;
+    
+    const messages = document.querySelectorAll(".msg-container");
+    messages.forEach(msg => {
+      const senderId = msg.dataset.senderId;
+      const bubble = msg.querySelector(".msg-bubble");
+      if (!bubble) return;
+      
+      if (senderId === currentUserId) {
+        msg.classList.remove("justify-content-start");
+        msg.classList.add("justify-content-end");
+        bubble.classList.remove("msg-bubble-incoming");
+        bubble.classList.add("msg-bubble-outgoing");
+        
+        const senderName = bubble.querySelector(".msg-sender-name");
+        if (senderName) senderName.style.display = "none";
+
+        // Show ticks for outgoing messages
+        const ticks = msg.querySelector(".msg-status-ticks");
+        if (ticks) ticks.classList.remove("d-none");
+      } else {
+        msg.classList.remove("justify-content-end");
+        msg.classList.add("justify-content-start");
+        bubble.classList.remove("msg-bubble-outgoing");
+        bubble.classList.add("msg-bubble-incoming");
+
+        // Hide ticks for incoming messages
+        const ticks = msg.querySelector(".msg-status-ticks");
+        if (ticks) ticks.classList.add("d-none");
+
+        // If message is unread, mark it as read on the server
+        if (msg.dataset.read === "false") {
+          markMessageAsRead(msg);
+        }
+      }
+    });
+  }
+
+  function markMessageAsRead(msgElement) {
+    const chatMain = document.querySelector(".wa-chat-main");
+    if (!chatMain) return;
+    const roomId = chatMain.dataset.roomId;
+    const messageId = msgElement.dataset.messageId;
+    if (!roomId || !messageId) return;
+    
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : "";
+    
+    // Set local dataset to "true" instantly so we don't spam requests
+    msgElement.dataset.read = "true";
+    
+    fetch(`/rooms/${roomId}/messages/${messageId}/read`, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Accept": "application/json"
+      }
+    }).then(response => {
+      if (!response.ok) {
+        msgElement.dataset.read = "false";
+      }
+    }).catch(err => {
+      msgElement.dataset.read = "false";
+    });
+  }
+
+  // Run initial bubble styling
+  styleMessages();
+
+  // Auto scroll to bottom of chat body on load & when new messages arrive
+  const bodyContainer = document.getElementById("messages-body-container");
+  if (bodyContainer) {
+    bodyContainer.scrollTop = bodyContainer.scrollHeight;
+    
+    // Watch for new messages appended to container to auto-scroll and apply styling
+    const observer = new MutationObserver(function() {
+      styleMessages();
+      bodyContainer.scrollTop = bodyContainer.scrollHeight;
+    });
+    
+    const messagesDiv = document.getElementById("messages");
+    if (messagesDiv) {
+      observer.observe(messagesDiv, { childList: true });
+    }
+  }
+});
+</script>

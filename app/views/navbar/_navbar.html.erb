@@ -1,101 +1,350 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-info">
-  <%= link_to "My Store", root_path, class: "navbar-brand" %>
-  
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <%= link_to root_path, class: "nav-link" do %>
-          Home <span class="sr-only">(current)</span>
+.premium-navbar {
+  font-family: 'Outfit', sans-serif;
+  background: rgba(17, 27, 33, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 24px !important;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-brand-link {
+  font-size: 1.35rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-brand-link:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+
+.nav-center-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-item-link {
+  color: #aebac1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.nav-item-link:hover {
+  color: #e9edef;
+  background-color: rgba(255, 255, 255, 0.05);
+  text-decoration: none;
+}
+
+.nav-item-link.active {
+  color: #e9edef;
+  background-color: rgba(13, 148, 136, 0.15);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+}
+
+.cart-icon-wrapper {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background-color: #0d9488;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(13, 148, 136, 0.6);
+  border: 1px solid #111b21;
+}
+
+/* User profile avatar trigger & dropdown styling */
+.nav-profile-wrapper {
+  position: relative;
+}
+
+.nav-avatar-trigger {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+}
+
+.nav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(13, 148, 136, 0.6);
+  transition: border-color 0.2s ease;
+}
+
+.nav-avatar-trigger:hover .nav-avatar {
+  border-color: #0d9488;
+}
+
+.nav-avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Flipkart inspired floating dropdown card */
+.profile-dropdown-card {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 250px;
+  background-color: #1f2c34;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideDown 0.2s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+  z-index: 1100;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header-user {
+  padding: 16px;
+  background-color: #111b21;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.dropdown-user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #e9edef;
+  margin-bottom: 2px;
+}
+
+.dropdown-user-email {
+  font-size: 0.8rem;
+  color: #8696a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-item-link {
+  color: #aebac1;
+  padding: 12px 16px;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: none;
+  text-align: left;
+  width: 100%;
+}
+
+.dropdown-item-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #e9edef;
+  text-decoration: none;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.06);
+  margin: 4px 0;
+}
+
+.logout-button-wrapper form {
+  margin: 0;
+}
+
+.logout-button-wrapper .dropdown-item-link {
+  color: #ef4444;
+}
+
+.logout-button-wrapper .dropdown-item-link:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.btn-login-nav {
+  background-color: #0d9488;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-login-nav:hover {
+  background-color: #0f766e;
+  color: #ffffff;
+  text-decoration: none;
+}
+</style>
+
+<nav class="premium-navbar">
+  <!-- Brand / Logo -->
+  <%= link_to root_path, class: "nav-brand-link" do %>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #0d9488;" class="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+    <span>My Store</span>
+  <% end %>
+
+  <!-- Center Links -->
+  <div class="nav-center-links">
+    <%= link_to root_path, class: "nav-item-link #{'active' if current_page?(root_path)}" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Shop</span>
+    <% end %>
+
+    <%= link_to rooms_path, class: "nav-item-link #{'active' if controller_name == 'rooms'}" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Chats</span>
+    <% end %>
+
+    <%= link_to weather_path, class: "nav-item-link #{'active' if current_page?(weather_path)}" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cloud-rain"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>
+      <span>Weather</span>
+    <% end %>
+
+    <%= link_to blogs_path, class: "nav-item-link #{'active' if controller_name == 'blogs'}" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+      <span>Blogs</span>
+    <% end %>
+
+    <%= link_to cart_path, class: "nav-item-link #{'active' if current_page?(cart_path)}" do %>
+      <span class="cart-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <% if current_cart && current_cart.line_items.sum(:quantity) > 0 %>
+          <span class="cart-badge"><%= current_cart.line_items.sum(:quantity) %></span>
         <% end %>
-      </li>
-
-      <li class="nav-item">
-        <span class="nav-link">
-          Hello, <%= user_signed_in? ? current_user.email.split("@")[0].capitalize : "Guest" %>
-        </span>
-      </li>
-    </ul>
-
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-        <%= link_to cart_path, class: "nav-link font-weight-bold" do %>
-          🛒 Cart (<%= current_cart.line_items.sum(:quantity) %>)
-        <% end %>
-      </li>
-
-      <% if user_signed_in? %>
-        <li class="nav-item">
-          <%= button_to 'Logout', destroy_user_session_path, 
-              method: :delete, 
-              class: "btn btn-outline-light btn-sm ml-lg-2 mt-1" %>
-        </li>
-        <li class="nav-item">
-          <%= link_to "My Orders", orders_path, class: "nav-link" %>
-        </li>
-      <% else %>
-        <li class="nav-item">
-          <%= link_to "Login", new_user_session_path, class: "nav-link" %>
-        </li>
-      <% end %>
-    </ul>
+      </span>
+      <span>Cart</span>
+    <% end %>
   </div>
-</nav>
 
+  <!-- Right Section (User Profiling / Login) -->
+  <div class="nav-right-actions">
+    <% if user_signed_in? %>
+      <div class="nav-profile-wrapper">
+        <button class="nav-avatar-trigger" id="nav-dropdown-trigger">
+          <% if current_user.avatar.attached? %>
+            <%= image_tag current_user.avatar, class: "nav-avatar" %>
+          <% else %>
+            <div class="nav-avatar-placeholder">
+              <%= current_user.display_name.present? ? current_user.display_name.first(2).upcase : current_user.email.first(2).upcase %>
+            </div>
+          <% end %>
+        </button>
 
+        <!-- Dropdown Card -->
+        <div class="profile-dropdown-card" id="nav-profile-dropdown">
+          <div class="dropdown-header-user">
+            <div class="dropdown-user-name">
+              <%= current_user.display_name.present? ? current_user.display_name : current_user.email.split('@').first.capitalize %>
+            </div>
+            <div class="dropdown-user-email" title="<%= current_user.email %>">
+              <%= current_user.email %>
+            </div>
+          </div>
+          
+          <%= link_to edit_profile_path, class: "dropdown-item-link" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>My Profile</span>
+          <% end %>
 
+          <%= link_to orders_path, class: "dropdown-item-link" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-package"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 12 3 6.92 12 1.84 21 6.92 12 12"></polygon></svg>
+            <span>My Orders</span>
+          <% end %>
 
-<!--
-<nav class="navbar navbar-expand-lg navbar-dark bg-info">
-  <a class="navbar-brand" href="#">Navbar</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home 
-          <span class="sr-only">
-            <%if user_signed_in?%>
-            <%= current_user.email.split("@")[0]%>
-            <%else%>
-            <%= "Guest User"%>
-            <%end%>
-            </span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <%if user_signed_in?%>
-            <%= button_to 'Logout', destroy_user_session_path, method: :delete %>
-        <%end%>
-        <%# <a class="nav-link" href="#">Logout <span class="sr-only"></span></a> %>
-      </li>
-     <%#  <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
-      </li> %>
-      <%# <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Dropdown
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
+          
+          <div class="logout-button-wrapper">
+            <%= button_to destroy_user_session_path, method: :delete, class: "dropdown-item-link" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Logout</span>
+            <% end %>
+          </div>
         </div>
-      </li> %>
-     <%#  <li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
-      </li> %>
-    </ul>
-    <%# <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form> %>
+      </div>
+    <% else %>
+      <%= link_to "Login", new_user_session_path, class: "btn-login-nav" %>
+    <% end %>
   </div>
 </nav>
--->
+
+<script>
+document.addEventListener("turbo:load", function() {
+  const trigger = document.getElementById("nav-dropdown-trigger");
+  const dropdown = document.getElementById("nav-profile-dropdown");
+  
+  if (trigger && dropdown) {
+    // Toggle dropdown
+    trigger.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const isVisible = dropdown.style.display === "flex";
+      dropdown.style.display = isVisible ? "none" : "flex";
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function(e) {
+      if (dropdown.style.display === "flex" && !dropdown.contains(e.target) && e.target !== trigger) {
+        dropdown.style.display = "none";
+      }
+    });
+  }
+});
+</script>

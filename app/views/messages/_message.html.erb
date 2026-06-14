@@ -1,4 +1,21 @@
-<div id="<%= dom_id(message) %>">
-  <strong><%= message.user.email %>:</strong>
-  <%= message.context %>
+<div class="d-flex mb-2 msg-container animate-msg-slide" id="<%= dom_id(message) %>" data-sender-id="<%= message.user_id %>" data-message-id="<%= message.id %>" data-read="<%= message.read %>">
+  <div class="msg-bubble">
+    <% if message.room.is_group? %>
+      <div class="msg-sender-name"><%= message.user.email.split('@').first.capitalize %></div>
+    <% end %>
+    <div class="msg-text-content">
+      <%= message.context %>
+    </div>
+    <div class="msg-timestamp-row">
+      <span class="msg-timestamp">
+        <%= message.created_at.strftime("%I:%M %p") %>
+      </span>
+      <span class="msg-status-ticks d-none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="wa-double-check <%= message.read ? 'text-read-blue' : 'text-unread-grey' %>">
+          <path d="M2 12l5 5L20 4" />
+          <path d="M7 12l5 5L22 4" />
+        </svg>
+      </span>
+    </div>
+  </div>
 </div>

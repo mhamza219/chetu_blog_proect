@@ -10,6 +10,8 @@ class User < ApplicationRecord
   has_many :participants
   has_many :rooms, through: :participants
 
+  has_one_attached :avatar
+
 
   def self.ransackable_attributes(auth_object = nil)
     # %w[id email created_at updated_at]
