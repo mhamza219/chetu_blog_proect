@@ -1,40 +1,56 @@
 module Payments
   class StripeController < ApplicationController
-    skip_before_action :verify_authenticity_token, only: [:webhook]
+    skip_before_action :verify_authenticity_token, only: [:webhook, :checkout_mock_success]
 
     def checkout
-      # @cart = Cart.find(params[:cart_id])
-      @cart = current_cart
-      
-      if @cart.line_items.empty?
-        redirect_to root_path, alert: "Your cart is empty!"
+      @order = Order.find(params[:order_id])
+      unless @order.user_id == current_user.id.to_s
+        redirect_to root_path, alert: "Access denied."
         return
       end
 
-      # 1. Create the order
-      @order = Order.create!(
-        user_id: current_user.id,
-        total: @cart.line_items.to_a.sum(&:total_price),
-        status: 'pending'
-      )
-      
-      # 2. Update line items to point to the order and remove them from the cart
-      # We use .update_all to change the foreign keys in the database
-      @cart.line_items.update_all(order_id: @order.id, cart_id: nil)
-
-      # 3. CRITICAL: Reload the order so it "sees" the newly attached line_items
-      @order.reload 
-
-      # 4. Call Service
       service = Payments::StripePaymentService.new(@order)
       
       begin
-        @session = service.create_checkout_session(success_url, cancel_url)
+        @session = service.create_checkout_session(
+          success_url(order_id: @order.id),
+          cancel_url(order_id: @order.id)
+        )
         @order.update(stripe_checkout_id: @session.id)
         redirect_to @session.url, allow_other_host: true
       rescue Stripe::InvalidRequestError => e
-        redirect_to cart_path, alert: "Stripe Error: #{e.message}"
+        redirect_to checkout_path, alert: "Stripe Error: #{e.message}"
       end
+    end
+
+    def checkout_mock
+      @order = Order.find(params[:order_id])
+      unless @order.user_id == current_user.id.to_s
+        redirect_to root_path, alert: "Access denied."
+        return
+      end
+    end
+
+    def checkout_mock_success
+      @order = Order.find(params[:order_id])
+      unless @order.user_id == current_user.id.to_s
+        redirect_to root_path, alert: "Access denied."
+        return
+      end
+
+      ActiveRecord::Base.transaction do
+        Transaction.create!(
+          order_id: @order.id.to_s,
+          stripe_id: "mock_stripe_tx_" + SecureRandom.hex(6),
+          amount: (@order.total * 100).to_i,
+          status: 'success',
+          last4: '4242',
+          card_brand: 'Visa'
+        )
+        @order.update!(status: 'paid')
+      end
+
+      redirect_to success_url(order_id: @order.id), notice: "Stripe sandbox payment successfully simulated!"
     end
 
     def webhook

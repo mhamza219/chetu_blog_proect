@@ -18,7 +18,11 @@ class CartsController < ApplicationController
     @line_item.cart_id = @cart.id.to_s
 
     if @line_item.save
-      redirect_to cart_path, notice: "#{@product.title} added to cart."
+      if params[:buy_now] == "true"
+        redirect_to checkout_path, notice: "#{@product.title} added to cart."
+      else
+        redirect_to cart_path, notice: "#{@product.title} added to cart."
+      end
     else
       # This will print the error to your 'rails s' terminal
       Rails.logger.error(@line_item.errors.full_messages)

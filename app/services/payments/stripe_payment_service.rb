@@ -2,19 +2,28 @@ module Payments
   class StripePaymentService
     def initialize(order)
       @order = order
-      Stripe.api_key = ENV['STRIPE_SECRET_KEY']
+      if ENV['STRIPE_SECRET_KEY'].present?
+        Stripe.api_key = ENV['STRIPE_SECRET_KEY']
+      end
     end
 
     def create_checkout_session(success_url, cancel_url)
-      Stripe::Checkout::Session.create({
-        customer_email: @order.user.email,
-        payment_method_types: ['card'],
-        line_items: build_line_items,
-        mode: 'payment',
-        metadata: { order_id: @order.id },
-        success_url: success_url,
-        cancel_url: cancel_url
-      })
+      if ENV['STRIPE_SECRET_KEY'].present?
+        Stripe::Checkout::Session.create({
+          customer_email: @order.user.email,
+          payment_method_types: ['card'],
+          line_items: build_line_items,
+          mode: 'payment',
+          metadata: { order_id: @order.id },
+          success_url: success_url,
+          cancel_url: cancel_url
+        })
+      else
+        Struct.new(:id, :url).new(
+          "mock_stripe_sess_" + SecureRandom.hex(6),
+          Rails.application.routes.url_helpers.stripe_checkout_mock_path(order_id: @order.id)
+        )
+      end
     end
 
     private
