@@ -22,8 +22,32 @@
 
   <body>
     <%= render 'navbar/navbar' %>
-    <p class="notice"><%= notice %></p>
-    <p class="alert"><%= alert %></p>
+
+    <% if notice.present? || alert.present? %>
+      <div class="toast-container-custom">
+        <% if notice.present? %>
+          <div class="toast-custom toast-notice" data-controller="notification" data-notification-duration-value="180000">
+            <div class="toast-body-custom">
+              <span class="toast-icon">✓</span>
+              <span class="toast-message"><%= notice %></span>
+              <button class="toast-close" data-action="click->notification#close">&times;</button>
+            </div>
+            <div class="toast-progress" data-notification-target="progress"></div>
+          </div>
+        <% end %>
+        <% if alert.present? %>
+          <div class="toast-custom toast-alert" data-controller="notification" data-notification-duration-value="180000">
+            <div class="toast-body-custom">
+              <span class="toast-icon">⚠️</span>
+              <span class="toast-message"><%= alert %></span>
+              <button class="toast-close" data-action="click->notification#close">&times;</button>
+            </div>
+            <div class="toast-progress" data-notification-target="progress"></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <%= yield %>
   </body>
 </html>
