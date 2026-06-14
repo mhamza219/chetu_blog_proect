@@ -1,0 +1,350 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Muli:wght@300;400;600;700&display=swap');
+
+.rzp-page {
+  background-color: #f5f6f7;
+  font-family: 'Muli', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #2b3944;
+  padding: 20px;
+}
+
+.rzp-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border: 1px solid #e1e6eb;
+}
+
+.rzp-header {
+  background-color: #172c4d;
+  color: #ffffff;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #339af0;
+}
+
+.rzp-merchant-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.rzp-merchant-email {
+  font-size: 0.8rem;
+  color: #9aa8bd;
+  margin-top: 2px;
+}
+
+.rzp-amount-box {
+  text-align: right;
+}
+
+.rzp-amount-label {
+  font-size: 0.72rem;
+  color: #9aa8bd;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.rzp-amount {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.rzp-body {
+  padding: 24px;
+}
+
+.rzp-sandbox-banner {
+  background-color: #339af0;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+/* Tab triggers */
+.rzp-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.rzp-menu-item {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rzp-menu-item:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.rzp-menu-item.active {
+  background-color: rgba(51, 154, 240, 0.08);
+  border-color: #339af0;
+}
+
+.rzp-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rzp-item-icon {
+  color: #339af0;
+  display: flex;
+  align-items: center;
+}
+
+.rzp-item-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.rzp-item-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+/* Panel content */
+.rzp-panel {
+  display: none;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rzp-panel.active {
+  display: block;
+}
+
+.rzp-input-group {
+  margin-bottom: 14px;
+}
+
+.rzp-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.rzp-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.rzp-input:focus {
+  border-color: #339af0;
+}
+
+.rzp-btn-pay {
+  background-color: #339af0;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(51, 154, 240, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.rzp-btn-pay:hover {
+  background-color: #228be6;
+}
+
+.rzp-btn-cancel {
+  background-color: transparent;
+  color: #64748b;
+  font-size: 0.85rem;
+  padding: 10px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 10px;
+}
+
+.rzp-btn-cancel:hover {
+  color: #ef4444;
+}
+</style>
+
+<div class="rzp-page">
+  <div class="rzp-card">
+    <div class="rzp-header">
+      <div>
+        <div class="rzp-merchant-title">My Store Inc</div>
+        <div class="rzp-merchant-email"><%= @order.user.email %></div>
+      </div>
+      <div class="rzp-amount-box">
+        <div class="rzp-amount-label">Amount due</div>
+        <div class="rzp-amount"><%= number_to_currency(@order.total / 100.0) %></div>
+      </div>
+    </div>
+
+    <div class="rzp-body">
+      <div style="text-align: center;">
+        <span class="rzp-sandbox-banner">Razorpay Sandbox Simulator</span>
+      </div>
+
+      <!-- Payment Method Selection Grid -->
+      <div class="rzp-menu" id="method-menu">
+        <!-- UPI Option -->
+        <div class="rzp-menu-item active" onclick="activatePanel('upi')">
+          <div class="rzp-item-left">
+            <div class="rzp-item-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            </div>
+            <div>
+              <div class="rzp-item-name">UPI</div>
+              <div class="rzp-item-desc">Google Pay, PhonePe, BHIM</div>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+
+        <!-- Card Option -->
+        <div class="rzp-menu-item" onclick="activatePanel('card')">
+          <div class="rzp-item-left">
+            <div class="rzp-item-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            </div>
+            <div>
+              <div class="rzp-item-name">Card</div>
+              <div class="rzp-item-desc">Visa, Mastercard, RuPay</div>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+
+        <!-- Netbanking Option -->
+        <div class="rzp-menu-item" onclick="activatePanel('netbanking')">
+          <div class="rzp-item-left">
+            <div class="rzp-item-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+            <div>
+              <div class="rzp-item-name">Netbanking</div>
+              <div class="rzp-item-desc">All popular Indian banks</div>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- Panels -->
+      <!-- UPI Panel -->
+      <div class="rzp-panel active" id="panel-upi">
+        <%= form_with(url: razorpay_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+          <input type="hidden" name="payment_method" value="UPI">
+          <div class="rzp-input-group">
+            <label class="rzp-label">UPI ID / VPA</label>
+            <input type="text" placeholder="e.g. success@razorpay" class="rzp-input" value="albert@razorpay" required>
+          </div>
+          <%= f.submit "Pay securely via UPI", class: "rzp-btn-pay" %>
+        <% end %>
+      </div>
+
+      <!-- Card Panel -->
+      <div class="rzp-panel" id="panel-card">
+        <%= form_with(url: razorpay_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+          <input type="hidden" name="payment_method" value="card">
+          <div class="rzp-input-group">
+            <label class="rzp-label">Card Number</label>
+            <input type="text" placeholder="4111 2222 3333 4444" class="rzp-input" value="4111 2222 3333 4444" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="rzp-input-group">
+              <label class="rzp-label">Expiry</label>
+              <input type="text" placeholder="MM/YY" class="rzp-input" value="12/28" required>
+            </div>
+            <div class="rzp-input-group">
+              <label class="rzp-label">CVV</label>
+              <input type="password" placeholder="123" class="rzp-input" value="123" required>
+            </div>
+          </div>
+          <%= f.submit "Pay securely via Card", class: "rzp-btn-pay" %>
+        <% end %>
+      </div>
+
+      <!-- Netbanking Panel -->
+      <div class="rzp-panel" id="panel-netbanking">
+        <%= form_with(url: razorpay_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+          <input type="hidden" name="payment_method" value="Netbanking">
+          <div class="rzp-input-group">
+            <label class="rzp-label">Choose Bank</label>
+            <select class="rzp-input" style="background-color: white;">
+              <option value="icici">ICICI Bank</option>
+              <option value="hdfc">HDFC Bank</option>
+              <option value="sbi">State Bank of India</option>
+            </select>
+          </div>
+          <%= f.submit "Pay securely via Bank", class: "rzp-btn-pay" %>
+        <% end %>
+      </div>
+
+      <!-- Cancel Action -->
+      <%= form_with(url: razorpay_cancel_path(order_id: @order.id), method: :post, local: true) do |f| %>
+        <%= f.submit "Cancel Payment / Close Window", class: "rzp-btn-cancel" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+function activatePanel(panelId) {
+  // Deselect all items & hide panels
+  document.querySelectorAll('.rzp-menu-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.rzp-panel').forEach(p => p.classList.remove('active'));
+
+  // Highlight selected menu item
+  event.currentTarget.classList.add('active');
+
+  // Show selected panel
+  document.getElementById('panel-' + panelId).classList.add('active');
+}
+</script>

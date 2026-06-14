@@ -42,9 +42,26 @@ Rails.application.routes.draw do
     post 'add_item/:product_id', to: 'carts#add_item', as: :add_item
   end
 
+  get 'checkout', to: 'checkouts#show', as: :checkout
+  post 'checkout', to: 'checkouts#create'
+
   scope module: :payments do
-    post 'stripe/checkout', to: 'stripe#checkout', as: :stripe_checkout
+    get 'stripe/checkout', to: 'stripe#checkout', as: :stripe_checkout
     post 'stripe/webhook',  to: 'stripe#webhook',  as: :stripe_webhook
+    get 'stripe/checkout_mock', to: 'stripe#checkout_mock', as: :stripe_checkout_mock
+    post 'stripe/checkout_mock_success', to: 'stripe#checkout_mock_success', as: :stripe_checkout_mock_success
+    
+    get 'cashfree/checkout', to: 'cashfree#checkout', as: :cashfree_checkout
+    post 'cashfree/success', to: 'cashfree#success', as: :cashfree_success
+    post 'cashfree/cancel',  to: 'cashfree#cancel',  as: :cashfree_cancel
+
+    get 'razorpay/checkout', to: 'razorpay#checkout', as: :razorpay_checkout
+    post 'razorpay/success', to: 'razorpay#success', as: :razorpay_success
+    post 'razorpay/cancel',  to: 'razorpay#cancel',  as: :razorpay_cancel
+
+    get 'billdesk/checkout', to: 'billdesk#checkout', as: :billdesk_checkout
+    post 'billdesk/success', to: 'billdesk#success', as: :billdesk_success
+    post 'billdesk/cancel',  to: 'billdesk#cancel',  as: :billdesk_cancel
   end
 
   resources :orders, only: [:index, :show]

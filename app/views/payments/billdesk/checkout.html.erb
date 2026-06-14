@@ -1,0 +1,291 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+.bd-page {
+  background-color: #f3f4f6;
+  font-family: 'Open Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #334155;
+  padding: 20px;
+}
+
+.bd-card {
+  width: 100%;
+  max-width: 650px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.bd-header-top {
+  background-color: #2563eb;
+  padding: 6px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.bd-header {
+  background-color: #ffffff;
+  padding: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bd-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  letter-spacing: -1px;
+  display: flex;
+  align-items: center;
+}
+
+.bd-logo span {
+  color: #f97316;
+}
+
+.bd-amount-info {
+  text-align: right;
+}
+
+.bd-amount-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.bd-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.bd-body {
+  padding: 24px;
+}
+
+.bd-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+}
+
+.bd-meta-label {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.bd-meta-value {
+  color: #1f2937;
+  font-weight: 500;
+  text-align: right;
+}
+
+.bd-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+/* Bank Selection Grid */
+.bank-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.bank-item {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.bank-item:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.bank-item.selected {
+  border-color: #f97316;
+  background-color: rgba(249, 115, 22, 0.05);
+}
+
+.bank-radio {
+  accent-color: #f97316;
+}
+
+.bd-btn-pay {
+  background-color: #f97316;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  box-shadow: 0 4px 6px rgba(249, 115, 22, 0.15);
+}
+
+.bd-btn-pay:hover {
+  background-color: #ea580c;
+}
+
+.bd-btn-cancel {
+  background-color: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.15s;
+}
+
+.bd-btn-cancel:hover {
+  background-color: #f9fafb;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.bd-sandbox-badge {
+  background-color: #f97316;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+</style>
+
+<div class="bd-page">
+  <div class="bd-card">
+    <div class="bd-header-top">
+      <span>SECURE BILLDESK GATEWAY</span>
+      <span>SANDBOX TESTMODE</span>
+    </div>
+    
+    <div class="bd-header">
+      <div class="bd-logo">
+        bill<span>desk</span>
+      </div>
+      <div class="bd-amount-info">
+        <div class="bd-amount-label">Payment Amount</div>
+        <div class="bd-amount"><%= number_to_currency(@order.total / 100.0) %></div>
+      </div>
+    </div>
+
+    <div class="bd-body">
+      <div style="text-align: center;">
+        <span class="bd-sandbox-badge">Billdesk Sandbox Simulator</span>
+      </div>
+
+      <div class="bd-meta-grid">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span class="bd-meta-label">Merchant Name</span>
+          <span class="bd-meta-label">Order Ref</span>
+          <span class="bd-meta-label">Customer Email</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span class="bd-meta-value">My Store Inc</span>
+          <span class="bd-meta-value">#<%= @order.id %></span>
+          <span class="bd-meta-value"><%= @order.user.email %></span>
+        </div>
+      </div>
+
+      <h3 class="bd-section-title">Select Netbanking Bank</h3>
+
+      <%= form_with(url: billdesk_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+        <input type="hidden" name="payment_method" value="Netbanking">
+        
+        <div class="bank-grid">
+          <div class="bank-item selected" onclick="selectBank('sbi')">
+            <input type="radio" name="bank_selection" value="sbi" id="bank_sbi" checked class="bank-radio" onclick="event.stopPropagation();">
+            <span>State Bank of India</span>
+          </div>
+
+          <div class="bank-item" onclick="selectBank('hdfc')">
+            <input type="radio" name="bank_selection" value="hdfc" id="bank_hdfc" class="bank-radio" onclick="event.stopPropagation();">
+            <span>HDFC Bank</span>
+          </div>
+
+          <div class="bank-item" onclick="selectBank('icici')">
+            <input type="radio" name="bank_selection" value="icici" id="bank_icici" class="bank-radio" onclick="event.stopPropagation();">
+            <span>ICICI Bank</span>
+          </div>
+
+          <div class="bank-item" onclick="selectBank('axis')">
+            <input type="radio" name="bank_selection" value="axis" id="bank_axis" class="bank-radio" onclick="event.stopPropagation();">
+            <span>Axis Bank</span>
+          </div>
+
+          <div class="bank-item" onclick="selectBank('pnb')">
+            <input type="radio" name="bank_selection" value="pnb" id="bank_pnb" class="bank-radio" onclick="event.stopPropagation();">
+            <span>Punjab National Bank</span>
+          </div>
+
+          <div class="bank-item" onclick="selectBank('bob')">
+            <input type="radio" name="bank_selection" value="bob" id="bank_bob" class="bank-radio" onclick="event.stopPropagation();">
+            <span>Bank of Baroda</span>
+          </div>
+        </div>
+
+        <%= f.submit "Simulate BillDesk Payment", class: "bd-btn-pay" %>
+      <% end %>
+
+      <%= form_with(url: billdesk_cancel_path(order_id: @order.id), method: :post, local: true) do |f| %>
+        <%= f.submit "Cancel Payment / Decline Transaction", class: "bd-btn-cancel" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectBank(bankId) {
+  // Deselect all banks
+  document.querySelectorAll('.bank-item').forEach(item => {
+    item.classList.remove('selected');
+  });
+
+  // Select clicked bank and radio button
+  const element = event.currentTarget;
+  element.classList.add('selected');
+
+  const radio = document.getElementById('bank_' + bankId);
+  if (radio) {
+    radio.checked = true;
+  }
+}
+</script>

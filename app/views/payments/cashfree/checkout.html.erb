@@ -1,0 +1,293 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.cf-page {
+  background-color: #f7f9fc;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  color: #1e293b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.cf-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 2px 5px rgba(0, 0, 0, 0.02);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.cf-header {
+  background-color: #1a365d;
+  color: #ffffff;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cf-logo {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cf-logo span {
+  color: #38bdf8;
+}
+
+.cf-amount-box {
+  text-align: right;
+}
+
+.cf-amount-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.cf-amount {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cf-body {
+  padding: 24px;
+}
+
+.cf-merchant-info {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Pay tabs */
+.cf-tabs {
+  display: flex;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.cf-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #64748b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.cf-tab.active {
+  color: #1a365d;
+  border-bottom-color: #1a365d;
+}
+
+.cf-tab-content {
+  display: none;
+}
+
+.cf-tab-content.active {
+  display: block;
+}
+
+.cf-input-group {
+  margin-bottom: 16px;
+}
+
+.cf-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.cf-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  color: #1e293b;
+}
+
+.cf-input:focus {
+  border-color: #1a365d;
+}
+
+/* Simulated action buttons */
+.cf-btn-pay {
+  background-color: #10b981;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.cf-btn-pay:hover {
+  background-color: #059669;
+}
+
+.cf-btn-cancel {
+  background-color: transparent;
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.cf-btn-cancel:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.cf-badge-sandbox {
+  background-color: #f59e0b;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+</style>
+
+<div class="cf-page">
+  <div class="cf-card">
+    <div class="cf-header">
+      <div class="cf-logo">
+        <span>cashfree</span>payments
+      </div>
+      <div class="cf-amount-box">
+        <div class="cf-amount-label">Amount to Pay</div>
+        <div class="cf-amount"><%= number_to_currency(@order.total / 100.0) %></div>
+      </div>
+    </div>
+
+    <div class="cf-body">
+      <div class="cf-merchant-info">
+        <div>Merchant: <strong>My Store Inc</strong></div>
+        <div>Order Ref: #<%= @order.id %></div>
+      </div>
+
+      <div style="text-align: center;">
+        <span class="cf-badge-sandbox">Cashfree Sandbox Simulator</span>
+      </div>
+
+      <!-- Payment Tabs -->
+      <div class="cf-tabs">
+        <div class="cf-tab active" onclick="switchTab('upi')">UPI / GPay</div>
+        <div class="cf-tab" onclick="switchTab('card')">Card</div>
+        <div class="cf-tab" onclick="switchTab('netbanking')">Netbanking</div>
+      </div>
+
+      <!-- UPI Form -->
+      <div class="cf-tab-content active" id="tab-upi">
+        <%= form_with(url: cashfree_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+          <input type="hidden" name="payment_method" value="UPI">
+          <div class="cf-input-group">
+            <label class="cf-label">Enter Virtual Payment Address (UPI ID)</label>
+            <input type="text" placeholder="e.g. user@okhdfcbank" class="cf-input" value="albert@upi" required>
+          </div>
+          <%= f.submit "Simulate Cashfree Success (UPI)", class: "cf-btn-pay" %>
+        <% end %>
+      </div>
+
+      <!-- Card Form -->
+      <div class="cf-tab-content" id="tab-card">
+        <%= form_with(url: cashfree_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+          <input type="hidden" name="payment_method" value="card">
+          <div class="cf-input-group">
+            <label class="cf-label">Card Number</label>
+            <input type="text" placeholder="XXXX XXXX XXXX XXXX" class="cf-input" value="4321 8888 7777 6666" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="cf-input-group">
+              <label class="cf-label">Expiry Date</label>
+              <input type="text" placeholder="MM/YY" class="cf-input" value="12/29" required>
+            </div>
+            <div class="cf-input-group">
+              <label class="cf-label">CVV / CVC</label>
+              <input type="password" placeholder="***" class="cf-input" value="123" required>
+            </div>
+          </div>
+          <%= f.submit "Simulate Cashfree Success (Card)", class: "cf-btn-pay" %>
+        <% end %>
+      </div>
+
+      <!-- Netbanking Form -->
+      <div class="cf-tab-content" id="tab-netbanking">
+        <%= form_with(url: cashfree_success_path(order_id: @order.id), method: :post, local: true) do |f| %>
+          <input type="hidden" name="payment_method" value="Netbanking">
+          <div class="cf-input-group">
+            <label class="cf-label">Select Popular Bank</label>
+            <select class="cf-input" style="background-color: white;">
+              <option value="sbi">State Bank of India</option>
+              <option value="hdfc">HDFC Bank</option>
+              <option value="icici">ICICI Bank</option>
+              <option value="axis">Axis Bank</option>
+            </select>
+          </div>
+          <%= f.submit "Simulate Cashfree Success (Netbanking)", class: "cf-btn-pay" %>
+        <% end %>
+      </div>
+
+      <!-- Cancel Form -->
+      <%= form_with(url: cashfree_cancel_path(order_id: @order.id), method: :post, local: true) do |f| %>
+        <%= f.submit "Cancel Payment / Return", class: "cf-btn-cancel" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tabId) {
+  // Deactivate all tabs & content
+  document.querySelectorAll('.cf-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.cf-tab-content').forEach(c => c.classList.remove('active'));
+
+  // Activate selected tab & content
+  const tab = event.currentTarget;
+  tab.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+</script>

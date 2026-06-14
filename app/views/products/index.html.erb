@@ -1,8 +1,231 @@
-<% @products.each do |product| %>
-  <div>
-    <h3><%= product.title %></h3>
-    <p><%= number_to_currency(product.price / 100.0) %></p>
-    
-    <%= button_to "Add to Cart", add_item_cart_path(product_id: product.id), method: :post, class: "btn btn-primary" %>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.shop-container {
+  font-family: 'Outfit', sans-serif;
+  background-color: #0b141a;
+  min-height: calc(100vh - 56px);
+  padding: 45px 20px;
+  color: #e9edef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.shop-title-wrapper {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.shop-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.shop-subtitle {
+  color: #8696a0;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  width: 100%;
+  max-width: 1100px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.product-card {
+  background: rgba(32, 44, 51, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(13, 148, 136, 0.4);
+  box-shadow: 0 12px 40px 0 rgba(13, 148, 136, 0.15);
+}
+
+.product-image-area {
+  height: 180px;
+  background: linear-gradient(135deg, #1f2c34 0%, #111b21 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+}
+
+.product-placeholder-icon {
+  color: rgba(13, 148, 136, 0.25);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-placeholder-icon {
+  transform: scale(1.08) rotate(3deg);
+  color: rgba(13, 148, 136, 0.4);
+}
+
+.product-info {
+  padding: 24px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #e9edef;
+  margin-bottom: 8px;
+}
+
+.product-description {
+  font-size: 0.88rem;
+  color: #8696a0;
+  line-height: 1.45;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: auto;
+}
+
+.product-price {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0d9488;
+}
+
+.actions-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 12px;
+}
+
+.btn-buy-now {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2);
+  width: 100%;
+  text-align: center;
+}
+
+.btn-buy-now:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(13, 148, 136, 0.35);
+}
+
+.btn-add-to-cart {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #aebac1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-add-to-cart:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e9edef;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-buy-now-wrapper form, .btn-add-to-cart-wrapper form {
+  margin: 0;
+  width: 100%;
+}
+</style>
+
+<div class="shop-container">
+  <div class="shop-title-wrapper">
+    <h1 class="shop-title">Discover Products</h1>
+    <div class="shop-subtitle">Premium items selected just for you</div>
   </div>
-<% end %>
+
+  <% if flash[:notice] %>
+    <div class="alert alert-success bg-opacity-10 text-success border-success border-opacity-20 w-100 mb-4" style="max-width: 1100px;">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <div class="products-grid">
+    <% @products.each do |product| %>
+      <div class="product-card">
+        <!-- Mock Product Image -->
+        <div class="product-image-area">
+          <div class="product-placeholder-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-package"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 12 3 6.92 12 1.84 21 6.92 12 12"></polygon></svg>
+          </div>
+        </div>
+
+        <div class="product-info">
+          <div>
+            <h3 class="product-title" title="<%= product.title %>"><%= product.title %></h3>
+            <p class="product-description"><%= product.description.presence || "No description provided for this premium item." %></p>
+          </div>
+          
+          <div class="product-price-row">
+            <span class="product-price"><%= number_to_currency(product.price / 100.0) %></span>
+          </div>
+
+          <div class="actions-row">
+            <div class="btn-buy-now-wrapper">
+              <%= button_to add_item_cart_path(product_id: product.id, buy_now: true), method: :post, class: "btn-buy-now" do %>
+                Buy Now
+              <% end %>
+            </div>
+            <div class="btn-add-to-cart-wrapper">
+              <%= button_to add_item_cart_path(product_id: product.id), method: :post, class: "btn-add-to-cart" do %>
+                Add to Cart
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

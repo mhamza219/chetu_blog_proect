@@ -1,19 +1,218 @@
-<div class="cart-wrapper">
-  <h1>Shopping Cart</h1>
-  
-  <% @cart.line_items.each do |item| %>
-    <div class="item">
-      <%= item.product.title %> - 
-      <%= item.quantity %> x <%= number_to_currency(item.product.price / 100.0) %>
-    </div>
-  <% end %>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-  <div class="actions">
-    <p>Total: <%= number_to_currency(@cart.total_price / 100.0) %></p>
-    
-    <%= button_to "Checkout with Stripe", stripe_checkout_path(cart_id: @cart.id), 
-        method: :post, 
-        data: { turbo: false }, 
-        class: "stripe-button" %>
+.cart-container {
+  font-family: 'Outfit', sans-serif;
+  background-color: #0b141a;
+  min-height: calc(100vh - 56px);
+  padding: 45px 20px;
+  color: #e9edef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.cart-card {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(32, 44, 51, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cart-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 15px;
+}
+
+.cart-title {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cart-empty-message {
+  text-align: center;
+  padding: 40px 0;
+  color: #8696a0;
+  font-size: 1.1rem;
+}
+
+.cart-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.cart-item-details {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cart-item-icon {
+  width: 44px;
+  height: 44px;
+  background-color: #111b21;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0d9488;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.cart-item-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #e9edef;
+}
+
+.cart-item-meta {
+  font-size: 0.85rem;
+  color: #8696a0;
+  margin-top: 2px;
+}
+
+.cart-item-price {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #e9edef;
+}
+
+.cart-summary-section {
+  margin-top: 30px;
+  padding-top: 25px;
+  border-top: 2px solid rgba(255, 255, 255, 0.06);
+}
+
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+.checkout-btn {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 14px 28px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(13, 148, 136, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.checkout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.keep-shopping-link {
+  color: #8696a0;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.keep-shopping-link:hover {
+  color: #e9edef;
+  text-decoration: none;
+}
+</style>
+
+<div class="cart-container">
+  <div class="cart-card">
+    <div class="cart-title-row">
+      <h1 class="cart-title">Your Cart</h1>
+      <span style="color: #8696a0; font-size: 0.95rem;">
+        <%= pluralize(@cart.line_items.sum(:quantity), "item") %>
+      </span>
+    </div>
+
+    <% if @cart.line_items.empty? %>
+      <div class="cart-empty-message">
+        <p>Your shopping cart is empty.</p>
+        <%= link_to root_path, class: "keep-shopping-link" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Start Shopping</span>
+        <% end %>
+      </div>
+    <% else %>
+      <div>
+        <% @cart.line_items.each do |item| %>
+          <div class="cart-item-row">
+            <div class="cart-item-details">
+              <div class="cart-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+              </div>
+              <div>
+                <span class="cart-item-title"><%= item.product.title %></span>
+                <div class="cart-item-meta">
+                  <%= number_to_currency(item.product.price / 100.0) %> &times; <%= item.quantity %>
+                </div>
+              </div>
+            </div>
+            <div class="cart-item-price">
+              <%= number_to_currency(item.total_price / 100.0) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="cart-summary-section">
+        <div class="cart-total-row">
+          <span>Subtotal</span>
+          <span style="color: #0d9488;"><%= number_to_currency(@cart.total_price / 100.0) %></span>
+        </div>
+
+        <%= link_to checkout_path, class: "checkout-btn" do %>
+          <span>Proceed to Checkout</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        <% end %>
+
+        <%= link_to root_path, class: "keep-shopping-link" do %>
+          <span>Continue Shopping</span>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>
