@@ -38,7 +38,9 @@ default: &default
   pool: <%= ENV["RAILS_DB_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
   idle_timeout: <%= ENV["RAILS_IDLE_CONNECTION"] ||  60 %>
   port: <%= ENV['RAILS_DATABASE_PORT'] || 5432 %>
-
+  host: <%= ENV['TEMPLATE_DATABASE_HOSTNAME'] || 'localhost' %>
+  username: <%= ENV['TEMPLATEAPP_DATABASE_USER'] || 'postgres' %>
+  password: <%= ENV['TEMPLATEAPP_DATABASE_PASSWORD'] || 'postgres' %>
 
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
