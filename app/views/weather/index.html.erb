@@ -1,16 +1,547 @@
-<h1>Weather Information</h1>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-<%= form_with url: weather_path, method: :get, local: true do %>
-  <input type="text" name="city" placeholder="Enter city" />
-  <button type="submit">Get Weather</button>
-<% end %>
+.weather-page-container {
+  font-family: 'Outfit', sans-serif;
+  background: radial-gradient(circle at 10% 20%, rgba(90, 92, 106, 0.03) 0%, rgba(32, 34, 47, 0.03) 90%), #0f111a;
+  min-height: calc(100vh - 56px); /* minus navbar height */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-<% if @weather %>
-  <h2><%= @weather[:city] %></h2>
-  <p>🌡 Temperature: <%= @weather[:temperature] %> °C</p>
-  <p>☁ Condition: <%= @weather[:description] %></p>
-  <p>💧 Humidity: <%= @weather[:humidity] %>%</p>
-  <p>🌬 Wind Speed: <%= @weather[:wind_speed] %> m/s</p>
-<% elsif @error %>
-  <p style="color:red;"><%= @error %></p>
-<% end %>
+.weather-title {
+  font-weight: 700;
+  font-size: 2.5rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.weather-search-form {
+  margin-top: 1.5rem;
+}
+
+.search-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.search-input-group:focus-within {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 4px 30px rgba(0, 0, 0, 0.25);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 400;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.search-button {
+  flex-shrink: 0;
+  background: #6366f1;
+  border: none;
+  color: #ffffff;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-right: 2px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background: #4f46e5;
+  transform: scale(1.05);
+}
+
+.search-button:active {
+  transform: scale(0.95);
+}
+
+/* Weather Card Themes */
+.weather-card {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.weather-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Warm Theme */
+.theme-warm {
+  background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Cool Theme */
+.theme-cool {
+  background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Rainy/Stormy Theme */
+.theme-rainy {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Default Dark/Modern Theme */
+.theme-default {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+}
+
+.card-glass-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+}
+
+.city-name {
+  font-weight: 700;
+  font-size: 2.2rem;
+  letter-spacing: -0.02em;
+}
+
+.current-date {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.weather-icon-wrapper {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.weather-icon-img {
+  width: 60px;
+  height: 60px;
+}
+
+.weather-emoji {
+  font-size: 2.5rem;
+}
+
+.temp-display-wrapper {
+  color: #ffffff;
+}
+
+.temp-val {
+  font-size: 5.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.temp-unit {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin-left: 4px;
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+.weather-desc {
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.feels-like-text {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.card-divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 0;
+}
+
+.weather-stats-grid .stat-item {
+  padding: 10px;
+}
+
+.border-end-glass {
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.stat-icon-wrapper {
+  opacity: 0.9;
+}
+
+.text-info-light {
+  color: #7dd3fc;
+}
+
+.text-warning-light {
+  color: #fde047;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Error Card styling */
+.error-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.error-title {
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin-top: 1rem;
+}
+
+.error-message {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(20, 22, 35, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 999;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 8px 0;
+}
+
+.suggestions-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.suggestions-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+.suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.suggestion-item {
+  padding: 10px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+  font-weight: 400;
+  text-align: left;
+}
+
+.suggestion-item:hover, .suggestion-item.active {
+  background: rgba(99, 102, 241, 0.2);
+  color: #ffffff;
+}
+
+.suggestion-item .match-highlight {
+  font-weight: 700;
+  color: #818cf8;
+}
+
+.suggestion-item .suggestion-icon {
+  margin-right: 12px;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+</style>
+
+<div class="weather-page-container">
+  <div class="container py-5">
+    <!-- Header/Search Section -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-md-8 col-lg-6 text-center">
+        <h1 class="weather-title mb-4">Weather Forecast</h1>
+        <%= form_with url: weather_path, method: :get, local: true, class: "weather-search-form" do %>
+          <div class="search-input-group">
+            <input type="text" name="city" id="weather-city-input" value="<%= @weather&.[](:city) %>" placeholder="Search for a city..." class="search-input" required autocomplete="off" />
+            <button type="submit" class="search-button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+            <div id="suggestions-list" class="suggestions-dropdown d-none"></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Weather Display Section -->
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <% if @weather %>
+          <% 
+            # Determine card theme class based on temperature & description
+            temp = @weather[:temperature]
+            desc = @weather[:description].downcase
+            theme_class = if temp >= 28
+              "theme-warm"
+            elsif temp <= 15
+              "theme-cool"
+            elsif desc.include?("rain") || desc.include?("storm") || desc.include?("drizzle")
+              "theme-rainy"
+            else
+              "theme-default"
+            end
+          %>
+          <div class="weather-card <%= theme_class %> animate-fade-in">
+            <div class="card-glass-overlay"></div>
+            
+            <div class="card-content">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h2 class="city-name mb-1"><%= @weather[:city] %></h2>
+                  <p class="current-date mb-0"><%= Time.current.strftime("%A, %B %d") %></p>
+                </div>
+                <div class="weather-icon-wrapper">
+                  <% if @weather[:icon].present? %>
+                    <img src="https://openweathermap.org/img/wn/<%= @weather[:icon] %>@2x.png" alt="<%= @weather[:description] %>" class="weather-icon-img" />
+                  <% else %>
+                    <span class="weather-emoji"><%= desc.include?("clear") ? "☀️" : "☁️" %></span>
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="temp-display-wrapper my-4">
+                <div class="d-flex align-items-baseline">
+                  <span class="temp-val"><%= @weather[:temperature] %></span>
+                  <span class="temp-unit">°C</span>
+                </div>
+                <p class="weather-desc text-capitalize mb-0"><%= @weather[:description] %></p>
+                <p class="feels-like-text mt-1">Feels like <strong><%= @weather[:feels_like] %>°C</strong></p>
+              </div>
+
+              <hr class="card-divider my-4" />
+
+              <div class="row text-center weather-stats-grid">
+                <div class="col-6 stat-item border-end-glass">
+                  <div class="stat-icon-wrapper mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-droplet text-info-light"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                  </div>
+                  <p class="stat-label mb-1">Humidity</p>
+                  <p class="stat-value mb-0"><%= @weather[:humidity] %>%</p>
+                </div>
+                <div class="col-6 stat-item">
+                  <div class="stat-icon-wrapper mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-wind text-warning-light"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg>
+                  </div>
+                  <p class="stat-label mb-1">Wind Speed</p>
+                  <p class="stat-value mb-0"><%= @weather[:wind_speed] %> m/s</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% elsif @error %>
+          <div class="error-card text-center p-5 animate-fade-in">
+            <div class="error-icon-wrapper mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <h3 class="error-title">City Not Found</h3>
+            <p class="error-message mb-0"><%= @error %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("turbo:load", function() {
+  const input = document.getElementById("weather-city-input");
+  const suggestionsList = document.getElementById("suggestions-list");
+  
+  if (!input || !suggestionsList) return;
+  
+  const cities = [
+    "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur", 
+    "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal", "Patna", "Vadodara", "Ghaziabad", "Ludhiana", 
+    "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Varanasi", "Srinagar", "Aurangabad", "Amritsar", "Navi Mumbai", 
+    "Allahabad", "Ranchi", "Howrah", "Jabalpur", "Gwalior", "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", 
+    "Guwahati", "Chandigarh", "Solapur", "Hubli-Dharwad", "Bareilly", "Moradabad", "Mysore", "Gurgaon", "Aligarh", 
+    "Jalandhar", "Tiruchirappalli", "Bhubaneswar", "Salem", "Warangal", "Guntur", "Noida", "Kochi", 
+    "London", "New York", "Paris", "Tokyo", "Berlin", "Sydney", "Melbourne", "Toronto", "Vancouver", "Singapore", 
+    "Dubai", "Abu Dhabi", "Rome", "Madrid", "Barcelona", "Amsterdam", "Brussels", "Vienna", "Zurich", "Geneva", 
+    "Moscow", "Istanbul", "Cairo", "Johannesburg", "Cape Town", "Nairobi", "Beijing", "Shanghai", "Hong Kong", 
+    "Seoul", "Bangkok", "Kuala Lumpur", "Jakarta", "Manila", "Rio de Janeiro", "Sao Paulo", "Buenos Aires", 
+    "Santiago", "Lima", "Mexico City"
+  ];
+  
+  let activeIndex = -1;
+  
+  input.addEventListener("input", function() {
+    const query = input.value.trim().toLowerCase();
+    suggestionsList.innerHTML = "";
+    activeIndex = -1;
+    
+    if (query.length < 1) {
+      suggestionsList.classList.add("d-none");
+      return;
+    }
+    
+    // Filter matching cities
+    const matches = cities.filter(city => city.toLowerCase().includes(query))
+                          .slice(0, 10); // Limit to top 10 results
+    
+    if (matches.length === 0) {
+      suggestionsList.classList.add("d-none");
+      return;
+    }
+    
+    // Generate suggestion list elements
+    matches.forEach((city, index) => {
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.dataset.index = index;
+      div.dataset.value = city;
+      
+      // Highlight matching query text
+      const regex = new RegExp(`(${query})`, "gi");
+      const highlightedCity = city.replace(regex, `<span class="match-highlight">$1</span>`);
+      
+      div.innerHTML = `<span class="suggestion-icon">📍</span> ${highlightedCity}`;
+      
+      div.addEventListener("click", function() {
+        selectSuggestion(city);
+      });
+      
+      suggestionsList.appendChild(div);
+    });
+    
+    suggestionsList.classList.remove("d-none");
+  });
+  
+  // Close suggestions when clicking outside
+  document.addEventListener("click", function(e) {
+    if (e.target !== input && e.target !== suggestionsList && !suggestionsList.contains(e.target)) {
+      suggestionsList.classList.add("d-none");
+    }
+  });
+  
+  // Support keyboard navigation
+  input.addEventListener("keydown", function(e) {
+    const items = suggestionsList.querySelectorAll(".suggestion-item");
+    if (items.length === 0) return;
+    
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % items.length;
+      highlightItem(items);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      activeIndex = (activeIndex - 1 + items.length) % items.length;
+      highlightItem(items);
+    } else if (e.key === "Enter") {
+      if (activeIndex > -1 && !suggestionsList.classList.contains("d-none")) {
+        e.preventDefault();
+        selectSuggestion(items[activeIndex].dataset.value);
+      }
+    } else if (e.key === "Escape") {
+      suggestionsList.classList.add("d-none");
+    }
+  });
+  
+  function highlightItem(items) {
+    items.forEach(item => item.classList.remove("active"));
+    if (activeIndex > -1) {
+      items[activeIndex].classList.add("active");
+      items[activeIndex].scrollIntoView({ block: "nearest" });
+    }
+  }
+  
+  function selectSuggestion(value) {
+    input.value = value;
+    suggestionsList.classList.add("d-none");
+    input.focus();
+    input.form.submit();
+  }
+});
+</script>

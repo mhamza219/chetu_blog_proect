@@ -20,10 +20,12 @@ class WeatherController < ApplicationController
     else
       @weather = {
         city: data["name"],
-        temperature: data["main"]["temp"],
-        description: data["weather"][0]["description"],
+        temperature: data["main"]["temp"].round,
+        description: data["weather"][0]["description"].titleize,
         humidity: data["main"]["humidity"],
-        wind_speed: data["wind"]["speed"]
+        wind_speed: data["wind"]["speed"],
+        feels_like: (data["main"]["feels_like"] || data["main"]["temp"]).round,
+        icon: data["weather"][0]["icon"]
       }
     end
   end
