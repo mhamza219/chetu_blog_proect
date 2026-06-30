@@ -213,7 +213,28 @@ server {
 }
 ```
 
+#### How to apply this to your Server:
+When you are ready to deploy, log into your production server via SSH and perform the following steps:
+
+1.  **Copy the configuration file** to Nginx's configurations folder on your server:
+    ```bash
+    sudo cp /path/to/your/app/config/nginx.conf /etc/nginx/sites-available/chetu_blog
+    ```
+2.  **Enable the site** by creating a symbolic link to the `sites-enabled` folder:
+    ```bash
+    sudo ln -sf /etc/nginx/sites-available/chetu_blog /etc/nginx/sites-enabled/chetu_blog
+    ```
+3.  **Test the configuration** for syntax errors:
+    ```bash
+    sudo nginx -t
+    ```
+4.  **Restart Nginx** to apply the changes:
+    ```bash
+    sudo systemctl restart nginx
+    ```
+
 ---
+
 
 ### Method C: On Render (If using `render.yaml`)
 If you are deploying to Render, Render handles this automatically when you define your custom domains.
