@@ -35,6 +35,7 @@ gem 'activeadmin'
 gem 'sassc-rails'
 
 # gem 'tailwindcss-rails'
+gem 'data_migrate'
 
 gem 'faker'
 
