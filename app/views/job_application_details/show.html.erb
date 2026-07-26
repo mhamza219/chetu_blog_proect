@@ -235,7 +235,35 @@
       Database JSON Column Payload (experience_details)
     </h3>
     <pre class="json-box-display"><%= JSON.pretty_generate(@job_application_detail.experience_details || []) %></pre>
+
+    <!-- PaperTrail Audit Trail Version History -->
+    <h3 class="section-heading" style="margin-top: 32px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      PaperTrail Audit Trail & Change History (<%= @job_application_detail.versions.count %> Versions)
+    </h3>
+    <div style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px;">
+      <% if @job_application_detail.versions.any? %>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <% @job_application_detail.versions.reverse.each do |version| %>
+            <li style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.88rem; color: #cbd5e1; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-right: 8px;">
+                  Event: <%= version.event %>
+                </span>
+                <span>Version #<%= version.id %> created on <%= version.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+              </div>
+              <div style="font-size: 0.8rem; color: #94a3b8;">
+                <%= version.whodunnit.present? ? "By User ##{version.whodunnit}" : "System / Automated" %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div style="color: #94a3b8; font-size: 0.88rem; font-style: italic;">No audit history recorded yet.</div>
+      <% end %>
+    </div>
   </div>
+
 
   <div>
     <%= link_to job_application_details_path, class: "btn-nav-back" do %>

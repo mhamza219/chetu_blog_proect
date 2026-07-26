@@ -36,6 +36,7 @@ gem 'sassc-rails'
 
 # gem 'tailwindcss-rails'
 gem 'data_migrate'
+gem 'paper_trail'
 
 gem 'faker'
 
