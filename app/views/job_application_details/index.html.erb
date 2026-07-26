@@ -1,0 +1,301 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+.job-apps-container {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.hero-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.hero-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  color: #94a3b8;
+  font-size: 0.98rem;
+  margin: 0;
+}
+
+.btn-upload-new {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-upload-new:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.search-bar-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.search-form {
+  display: flex;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  padding: 10px 16px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #38bdf8;
+}
+
+.btn-search {
+  background: #334155;
+  color: #f8fafc;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-search:hover {
+  background: #475569;
+}
+
+.table-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.candidate-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #e2e8f0;
+}
+
+.candidate-table th {
+  background: #0f172a;
+  text-align: left;
+  padding: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  border-bottom: 1px solid #334155;
+}
+
+.candidate-table td {
+  padding: 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.candidate-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.candidate-name {
+  font-weight: 600;
+  color: #f8fafc;
+  display: block;
+}
+
+.candidate-email {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.badge-status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-parsed { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-draft { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+.exp-badge {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  margin-right: 4px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.action-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action-view {
+  color: #38bdf8;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.1);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-action-view:hover {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+}
+
+.btn-action-delete {
+  color: #ef4444;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+}
+
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  color: #94a3b8;
+}
+</style>
+
+<div class="job-apps-container">
+  <div class="hero-banner">
+    <div>
+      <h1 class="hero-title">Job Application Details</h1>
+      <p class="hero-subtitle">Automated Document Parsing powered by Python script & framework</p>
+    </div>
+    <div>
+      <%= link_to new_job_application_detail_path, class: "btn-upload-new" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Upload Resume / Document
+      <% end %>
+    </div>
+  </div>
+
+  <div class="search-bar-card">
+    <%= form_with url: job_application_details_path, method: :get, local: true, class: "search-form" do |f| %>
+      <%= f.text_field :search, value: params[:search], placeholder: "Search candidate by name, email, mobile or skill...", class: "search-input" %>
+      <button type="submit" class="btn-search">Search</button>
+    <% end %>
+  </div>
+
+  <div class="table-card">
+    <% if @job_application_details.any? %>
+      <table class="candidate-table">
+        <thead>
+          <tr>
+            <th>Candidate Info</th>
+            <th>Mobile Number</th>
+            <th>Work Experience (JSON)</th>
+            <th>Skills</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @job_application_details.each do |candidate| %>
+            <tr>
+              <td>
+                <span class="candidate-name"><%= candidate.name %></span>
+                <span class="candidate-email"><%= candidate.email.presence || "No email provided" %></span>
+              </td>
+              <td>
+                <%= candidate.mobile_number.presence || "N/A" %>
+              </td>
+              <td>
+                <% if candidate.experience_details.is_a?(Array) && candidate.experience_details.any? %>
+                  <% candidate.experience_details.first(2).each do |exp| %>
+                    <div class="exp-badge">
+                      <strong><%= exp["designation"] || exp[:designation] || "Role" %></strong> 
+                      @ <%= exp["company_name"] || exp[:company_name] || "Company" %>
+                    </div>
+                  <% end %>
+                  <% if candidate.experience_details.size > 2 %>
+                    <span style="font-size: 0.8rem; color: #94a3b8;">+<%= candidate.experience_details.size - 2 %> more</span>
+                  <% end %>
+                <% else %>
+                  <span style="color: #64748b; font-size: 0.85rem;">No experience logged</span>
+                <% endif %>
+              </td>
+              <td>
+                <span style="font-size: 0.85rem; color: #cbd5e1;"><%= truncate(candidate.skills, length: 35) %></span>
+              </td>
+              <td>
+                <span class="badge-status <%= candidate.status == 'parsed' ? 'status-parsed' : 'status-draft' %>">
+                  <%= candidate.status.to_s.capitalize %>
+                </span>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <%= link_to "View Details", job_application_detail_path(candidate), class: "btn-action-view" %>
+                  <%= button_to "Delete", job_application_detail_path(candidate), method: :delete, data: { confirm: "Are you sure?" }, class: "btn-action-delete" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="empty-state">
+        <h3>No Job Applications Found</h3>
+        <p>Upload candidate resumes or document files (PDF, Word, Excel, TXT) to automatically extract applicant details.</p>
+        <br>
+        <%= link_to "Upload First Resume", new_job_application_detail_path, class: "btn-upload-new" %>
+      </div>
+    <% end %>
+  </div>
+</div>

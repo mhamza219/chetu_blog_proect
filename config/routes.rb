@@ -23,6 +23,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :job_application_details do
+    collection do
+      post :parse_document
+    end
+  end
+
+
   get "weather", to: "weather#index"
   resource :profile, only: [:edit, :update]
 
