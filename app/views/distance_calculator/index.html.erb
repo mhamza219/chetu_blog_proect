@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Distance Calculator & Route Planner - Chetu Blog</title>
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet Routing Machine CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+    .dc-wrapper {
+      font-family: 'Outfit', sans-serif;
+      background-color: #0b141a;
+      min-height: calc(100vh - 56px);
+      color: #e9edef;
+      padding: 24px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    .dc-header {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .dc-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .dc-subtitle {
+      color: #8696a0;
+      font-size: 0.98rem;
+    }
+
+    .dc-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 992px) {
+      .dc-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dc-card {
+      background: rgba(32, 44, 51, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .dc-input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .dc-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #06b6d4;
+      margin-bottom: 8px;
+    }
+
+    .dc-input-wrapper {
+      position: relative;
+    }
+
+    .dc-input {
+      width: 100%;
+      background-color: #111b21;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #e9edef;
+      font-size: 0.95rem;
+      padding: 12px 14px 12px 38px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .dc-input:focus {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.25);
+    }
+
+    .dc-input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8696a0;
+    }
+
+    .dc-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #1f2c34;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1050;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      display: none;
+    }
+
+    .dc-suggestion-item {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      color: #e9edef;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: background 0.15s ease;
+    }
+
+    .dc-suggestion-item:hover {
+      background: rgba(13, 148, 136, 0.2);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 12px 20px;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+    }
+
+    .btn-action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4);
+    }
+
+    .btn-secondary-action {
+      background: rgba(255, 255, 255, 0.06);
+      color: #06b6d4;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary-action:hover {
+      background: rgba(6, 182, 212, 0.15);
+    }
+
+    /* Results card */
+    .results-card {
+      margin-top: 24px;
+      background: rgba(17, 27, 33, 0.8);
+      border: 1px solid rgba(13, 148, 136, 0.25);
+      border-radius: 12px;
+      padding: 18px;
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      font-size: 0.88rem;
+      color: #8696a0;
+    }
+
+    .result-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #06b6d4;
+    }
+
+    /* Map container */
+    #map-container {
+      width: 100%;
+      height: 650px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+
+    /* Leaflet routing machine customized styling */
+    .leaflet-routing-container {
+      background: rgba(17, 27, 33, 0.92) !important;
+      backdrop-filter: blur(8px);
+      color: #e9edef !important;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .leaflet-routing-alt h2 {
+      color: #06b6d4 !important;
+      font-size: 1.1rem !important;
+      font-family: 'Outfit', sans-serif !important;
+    }
+
+    .leaflet-routing-alt h3 {
+      color: #aebac1 !important;
+      font-size: 0.95rem !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dc-wrapper">
+  <div class="dc-header">
+    <h1 class="dc-title">🗺️ Interactive Distance & Route Planner</h1>
+    <p class="dc-subtitle">Calculate exact distance, driving time, and visual navigation routes between any two places worldwide</p>
+  </div>
+
+  <div class="dc-layout">
+    <!-- Left Control Panel -->
+    <div class="dc-card">
+      <!-- Origin Input -->
+      <div class="dc-input-group">
+        <div class="dc-label">
+          <span>🟢 ORIGIN (Start Location)</span>
+          <button type="button" class="btn-secondary-action" onclick="useMyCurrentLocation()">Use My GPS</button>
+        </div>
+        <div class="dc-input-wrapper">
+          <svg class="dc-input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <input type="text" id="origin-input" class="dc-input" placeholder="e.g. San Francisco, CA or Lat, Lng" value="<%= @default_origin_name %>" oninput="handleSearch(this, 'origin')" autocomplete="off" />
+          <input type="hidden" id="origin-lat" value="<%= @default_origin_lat %>" />
+          <input type="hidden" id="origin-lng" value="<%= @default_origin_lng %>" />
+          <div id="origin-suggestions" class="dc-suggestions"></div>
+        </div>
+      </div>
+
+      <!-- Destination Input -->
+      <div class="dc-input-group">
+        <div class="dc-label">
+          <span>🔴 DESTINATION (End Location)</span>
+          <span style="font-size: 0.75rem; color: #8696a0;">Type or click map</span>
+        </div>
+        <div class="dc-input-wrapper">
+          <svg class="dc-input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <input type="text" id="dest-input" class="dc-input" placeholder="e.g. Los Angeles, CA or New York" oninput="handleSearch(this, 'dest')" autocomplete="off" />
+          <input type="hidden" id="dest-lat" />
+          <input type="hidden" id="dest-lng" />
+          <div id="dest-suggestions" class="dc-suggestions"></div>
+        </div>
+      </div>
+
+      <!-- Calculate Button -->
+      <button type="button" class="btn-action" onclick="calculateRouteAndDistance()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <span>Calculate & Draw Route</span>
+      </button>
+
+      <!-- Results Display Card -->
+      <div id="results-card" class="results-card">
+        <div class="result-row">
+          <span class="result-label">Straight-Line Distance:</span>
+          <span id="res-dist-km" class="result-val">0 km</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Distance in Miles:</span>
+          <span id="res-dist-mi" class="result-val">0 mi</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Driving Route Distance:</span>
+          <span id="res-road-dist" class="result-val" style="color: #0d9488;">Calculating...</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Est. Driving Time:</span>
+          <span id="res-road-time" class="result-val" style="color: #0d9488;">Calculating...</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Compass Direction:</span>
+          <span id="res-bearing" class="result-val" style="font-size: 0.95rem;">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Interactive Map -->
+    <div id="map-container"></div>
+  </div>
+</div>
+
+<script>
+let map;
+let originMarker = null;
+let destMarker = null;
+let routingControl = null;
+let searchDebounceTimer = null;
+
+document.addEventListener("DOMContentLoaded", function() {
+  initMap();
+});
+
+document.addEventListener("turbo:load", function() {
+  if (!map) {
+    initMap();
+  }
+});
+
+function initMap() {
+  const container = document.getElementById("map-container");
+  if (!container || container._leaflet_id) return;
+
+  const defaultLat = parseFloat(document.getElementById("origin-lat").value) || 37.7749;
+  const defaultLng = parseFloat(document.getElementById("origin-lng").value) || -122.4194;
+
+  map = L.map("map-container").setView([defaultLat, defaultLng], 8);
+
+  // High quality dark tile layer from CartoDB Dark Matter
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Set initial origin marker
+  setOriginMarker(defaultLat, defaultLng, document.getElementById("origin-input").value);
+
+  // Click on map to pick location
+  map.on("click", function(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+
+    if (!document.getElementById("dest-lat").value) {
+      setDestMarker(lat, lng, `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`);
+      document.getElementById("dest-lat").value = lat;
+      document.getElementById("dest-lng").value = lng;
+      document.getElementById("dest-input").value = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+      calculateRouteAndDistance();
+    } else {
+      // Toggle setting destination
+      setDestMarker(lat, lng, `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`);
+      document.getElementById("dest-lat").value = lat;
+      document.getElementById("dest-lng").value = lng;
+      document.getElementById("dest-input").value = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+      calculateRouteAndDistance();
+    }
+  });
+}
+
+function setOriginMarker(lat, lng, popupText) {
+  if (originMarker) map.removeLayer(originMarker);
+
+  const greenIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  originMarker = L.marker([lat, lng], { icon: greenIcon, draggable: true }).addTo(map);
+  originMarker.bindPopup(`<b>🟢 Origin:</b><br>${popupText || 'Start Point'}`).openPopup();
+
+  originMarker.on("dragend", function(e) {
+    const coords = e.target.getLatLng();
+    document.getElementById("origin-lat").value = coords.lat;
+    document.getElementById("origin-lng").value = coords.lng;
+    document.getElementById("origin-input").value = `${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}°`;
+    if (destMarker) calculateRouteAndDistance();
+  });
+}
+
+function setDestMarker(lat, lng, popupText) {
+  if (destMarker) map.removeLayer(destMarker);
+
+  const redIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  destMarker = L.marker([lat, lng], { icon: redIcon, draggable: true }).addTo(map);
+  destMarker.bindPopup(`<b>🔴 Destination:</b><br>${popupText || 'End Point'}`).openPopup();
+
+  destMarker.on("dragend", function(e) {
+    const coords = e.target.getLatLng();
+    document.getElementById("dest-lat").value = coords.lat;
+    document.getElementById("dest-lng").value = coords.lng;
+    document.getElementById("dest-input").value = `${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}°`;
+    calculateRouteAndDistance();
+  });
+}
+
+function calculateRouteAndDistance() {
+  const originQuery = document.getElementById("origin-input").value;
+  const destQuery = document.getElementById("dest-input").value;
+  const originLat = document.getElementById("origin-lat").value;
+  const originLng = document.getElementById("origin-lng").value;
+  const destLat = document.getElementById("dest-lat").value;
+  const destLng = document.getElementById("dest-lng").value;
+
+  if (!originQuery && !originLat) {
+    alert("Please enter or select an Origin location.");
+    return;
+  }
+
+  if (!destQuery && !destLat) {
+    alert("Please enter or select a Destination location.");
+    return;
+  }
+
+  const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content");
+
+  fetch("<%= calculate_distance_path %>", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": csrfToken
+    },
+    body: JSON.stringify({
+      origin: originQuery,
+      origin_lat: originLat,
+      origin_lng: originLng,
+      destination: destQuery,
+      dest_lat: destLat,
+      dest_lng: destLng
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      // Display straight-line results
+      document.getElementById("results-card").style.display = "block";
+      document.getElementById("res-dist-km").innerText = `${data.distance_km} km`;
+      document.getElementById("res-dist-mi").innerText = `${data.distance_miles} mi`;
+      document.getElementById("res-bearing").innerText = `${data.compass_point} (${data.bearing}°)`;
+
+      // Update coordinates
+      const origPt = [data.origin.latitude, data.origin.longitude];
+      const destPt = [data.destination.latitude, data.destination.longitude];
+
+      document.getElementById("origin-lat").value = origPt[0];
+      document.getElementById("origin-lng").value = origPt[1];
+      document.getElementById("dest-lat").value = destPt[0];
+      document.getElementById("dest-lng").value = destPt[1];
+
+      setOriginMarker(origPt[0], origPt[1], data.origin.name);
+      setDestMarker(destPt[0], destPt[1], data.destination.name);
+
+      // Draw road route with OSRM Routing Machine
+      drawRouteOnMap(origPt, destPt);
+    } else {
+      alert(data.message || "Failed to calculate distance");
+    }
+  })
+  .catch(err => {
+    console.error("Error calculating distance:", err);
+    alert("An error occurred while calculating distance.");
+  });
+}
+
+function drawRouteOnMap(originCoords, destCoords) {
+  if (routingControl) {
+    map.removeControl(routingControl);
+  }
+
+  routingControl = L.Routing.control({
+    waypoints: [
+      L.latLng(originCoords[0], originCoords[1]),
+      L.latLng(destCoords[0], destCoords[1])
+    ],
+    routeWhileDragging: true,
+    show: true,
+    addWaypoints: false,
+    lineOptions: {
+      styles: [{ color: '#06b6d4', opacity: 0.85, weight: 6 }]
+    },
+    createMarker: function() { return null; } // Custom markers already managed
+  }).addTo(map);
+
+  routingControl.on("routesfound", function(e) {
+    const routes = e.routes;
+    const summary = routes[0].summary;
+    const roadKm = (summary.totalDistance / 1000).toFixed(2);
+    const roadTimeMin = Math.round(summary.totalTime / 60);
+
+    const timeStr = roadTimeMin > 60 
+      ? `${Math.floor(roadTimeMin / 60)} hr ${roadTimeMin % 60} min`
+      : `${roadTimeMin} mins`;
+
+    document.getElementById("res-road-dist").innerText = `${roadKm} km`;
+    document.getElementById("res-road-time").innerText = timeStr;
+  });
+
+  // Fit bounds to show entire route
+  const bounds = L.latLngBounds([originCoords, destCoords]);
+  map.fitBounds(bounds, { padding: [50, 50] });
+}
+
+function useMyCurrentLocation() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      document.getElementById("origin-lat").value = lat;
+      document.getElementById("origin-lng").value = lng;
+      document.getElementById("origin-input").value = `${lat.toFixed(4)}°, ${lng.toFixed(4)}° (GPS)`;
+
+      setOriginMarker(lat, lng, "My Current GPS Location");
+      map.setView([lat, lng], 12);
+
+      if (destMarker) {
+        calculateRouteAndDistance();
+      }
+    }, function(err) {
+      alert("GPS location error: " + err.message);
+    });
+  } else {
+    alert("Geolocation is not supported by your browser.");
+  }
+}
+
+function handleSearch(input, type) {
+  clearTimeout(searchDebounceTimer);
+  const query = input.value.trim();
+  const suggestionsBox = document.getElementById(`${type}-suggestions`);
+
+  if (query.length < 3) {
+    suggestionsBox.style.display = "none";
+    return;
+  }
+
+  searchDebounceTimer = setTimeout(function() {
+    fetch(`<%= search_distance_location_path %>?q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success" && data.results.length > 0) {
+          suggestionsBox.innerHTML = "";
+          data.results.forEach(res => {
+            const item = document.createElement("div");
+            item.className = "dc-suggestion-item";
+            item.innerText = res.name;
+            item.onclick = function() {
+              input.value = res.name;
+              document.getElementById(`${type}-lat`).value = res.latitude;
+              document.getElementById(`${type}-lng`).value = res.longitude;
+              suggestionsBox.style.display = "none";
+
+              if (type === "origin") {
+                setOriginMarker(res.latitude, res.longitude, res.name);
+              } else {
+                setDestMarker(res.latitude, res.longitude, res.name);
+              }
+
+              if (document.getElementById("origin-lat").value && document.getElementById("dest-lat").value) {
+                calculateRouteAndDistance();
+              }
+            };
+            suggestionsBox.appendChild(item);
+          });
+          suggestionsBox.style.display = "block";
+        } else {
+          suggestionsBox.style.display = "none";
+        }
+      })
+      .catch(err => console.error("Search error:", err));
+  }, 350);
+}
+
+// Close suggestion box when clicking outside
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".dc-input-wrapper")) {
+    document.querySelectorAll(".dc-suggestions").forEach(box => box.style.display = "none");
+  }
+});
+</script>
+
+</body>
+</html>

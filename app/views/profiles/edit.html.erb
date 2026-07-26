@@ -235,14 +235,66 @@
       </div>
 
       <div class="wa-form-group">
-        <%= f.label :address, "Billing / Shipping Address", class: "wa-label" %>
-        <%= f.text_area :address, rows: 3, placeholder: "e.g. 123 Main St, City, Country", class: "wa-input" %>
+        <%= f.label :address, "Address (Geocoded)", class: "wa-label" %>
+        <%= f.text_area :address, rows: 2, placeholder: "e.g. 1600 Amphitheatre Pkwy, Mountain View, CA", class: "wa-input" %>
+      </div>
+
+      <div class="wa-form-group p-3 rounded" style="background: rgba(13, 148, 136, 0.08); border: 1px dashed rgba(13, 148, 136, 0.3);">
+        <label class="wa-label" style="color: #06b6d4; font-weight: 600; margin-bottom: 6px;">📍 Geocoder Location Status</label>
+        <div class="d-flex flex-column gap-1 mb-2" style="font-size: 0.9rem; color: #aebac1;">
+          <div><strong>Current Location:</strong> <span id="profile-location-str" style="color: #e9edef;"><%= @user.formatted_location.presence || "Not set yet" %></span></div>
+          <div><strong>Latitude:</strong> <span id="profile-lat" style="color: #0d9488;"><%= @user.latitude || "N/A" %></span> | <strong>Longitude:</strong> <span id="profile-lng" style="color: #0d9488;"><%= @user.longitude || "N/A" %></span></div>
+        </div>
+        <button type="button" class="btn btn-sm text-white mt-1" style="background-color: #0d9488; font-weight: 500;" onclick="detectAndSaveLocation()">
+          🌐 Update Location via Browser GPS
+        </button>
       </div>
 
       <%= f.submit "Save Changes", class: "submit-btn" %>
     <% end %>
   </div>
 </div>
+
+<script>
+function detectAndSaveLocation() {
+  if ("geolocation" in navigator) {
+    const locStr = document.getElementById("profile-location-str");
+    if (locStr) locStr.innerText = "Detecting GPS location...";
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content");
+
+      fetch("<%= update_user_location_path %>", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
+        },
+        body: JSON.stringify({ latitude: lat, longitude: lng })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          document.getElementById("profile-lat").innerText = data.latitude;
+          document.getElementById("profile-lng").innerText = data.longitude;
+          document.getElementById("profile-location-str").innerText = data.location;
+          const navText = document.getElementById("nav-location-text");
+          if (navText) navText.innerText = data.location;
+        } else {
+          alert("Could not update location: " + (data.message || "Unknown error"));
+        }
+      })
+      .catch(err => alert("Error saving location: " + err));
+    }, function(err) {
+      alert("Browser Geolocation Error: " + err.message);
+    });
+  } else {
+    alert("Geolocation is not supported by your browser.");
+  }
+}
+</script>
 
 <script>
 function previewImage(input) {

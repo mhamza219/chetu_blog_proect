@@ -216,6 +216,35 @@
   color: #ef4444;
 }
 
+.nav-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-location-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: #e9edef;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+}
+
+.nav-location-badge:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
 .btn-login-nav {
   background-color: #0d9488;
   color: #ffffff;
@@ -269,6 +298,12 @@
       <span>Job Applications</span>
     <% end %>
 
+    <%= link_to distance_calculator_path, class: "nav-item-link #{'active' if controller_name == 'distance_calculator'}" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-navigation"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+      <span>Map & Distance</span>
+    <% end %>
+
+
 
     <%= link_to cart_path, class: "nav-item-link #{'active' if current_page?(cart_path)}" do %>
       <span class="cart-icon-wrapper">
@@ -284,6 +319,11 @@
   <!-- Right Section (User Profiling / Login) -->
   <div class="nav-right-actions">
     <% if user_signed_in? %>
+      <div class="nav-location-badge" id="nav-location-display" title="Location: <%= current_user.formatted_location.presence || 'Detecting...' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin" style="color: #06b6d4; flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <span id="nav-location-text"><%= current_user.formatted_location.presence || "Locating..." %></span>
+      </div>
+
       <div class="nav-profile-wrapper">
         <button class="nav-avatar-trigger" id="nav-dropdown-trigger">
           <% if current_user.avatar.attached? %>
@@ -352,5 +392,36 @@ document.addEventListener("turbo:load", function() {
       }
     });
   }
+
+  <% if user_signed_in? %>
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content");
+
+        fetch("<%= update_user_location_path %>", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken
+          },
+          body: JSON.stringify({ latitude: lat, longitude: lng })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success" && data.location) {
+            const locElem = document.getElementById("nav-location-text");
+            if (locElem) {
+              locElem.innerText = data.location;
+            }
+          }
+        })
+        .catch(err => console.log("Location sync note:", err));
+      }, function(error) {
+        console.log("Geolocation position error:", error.message);
+      });
+    }
+  <% end %>
 });
 </script>
