@@ -1,4 +1,6 @@
 class JobApplicationDetail < ApplicationRecord
+  has_paper_trail
+
   has_one_attached :resume_file
 
   # Serialize experience_details string column to/from JSON array/hash in Rails

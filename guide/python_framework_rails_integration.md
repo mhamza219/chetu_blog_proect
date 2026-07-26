@@ -198,3 +198,31 @@ rails s
 ```
 
 When a document is uploaded, Rails triggers `PythonFrameworkService`, which runs `python3 python_framework/main.py <service_name> '<json_payload>'` on-demand, processes the file, and returns the response back to Rails.
+
+---
+
+## PaperTrail Audit & Version Control
+
+The system uses `paper_trail` gem to track all changes made to candidate application records.
+
+### Model Configuration (`app/models/job_application_detail.rb`)
+```ruby
+class JobApplicationDetail < ApplicationRecord
+  has_paper_trail
+
+  has_one_attached :resume_file
+  serialize :experience_details, coder: JSON
+end
+```
+
+### Accessing Version History
+```ruby
+candidate = JobApplicationDetail.find(1)
+
+# List all versions
+candidate.versions
+
+# Restore previous state before update
+previous_state = candidate.paper_trail.previous_version
+```
+
