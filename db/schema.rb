@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_12_135225) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_26_141500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -84,6 +84,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_12_135225) do
   end
 
   create_table "data_migrations", primary_key: "version", id: :string, force: :cascade do |t|
+  end
+
+  create_table "job_application_details", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.string "mobile_number"
+    t.string "experience_details", default: "[]"
+    t.text "skills"
+    t.string "education"
+    t.text "summary"
+    t.string "resume_file_name"
+    t.string "status", default: "draft"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "line_items", force: :cascade do |t|
