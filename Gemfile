@@ -29,6 +29,7 @@ gem 'stripe'
 gem 'rack-attack'
 
 gem 'devise'
+gem 'geocoder'
 
 gem 'activeadmin'
 

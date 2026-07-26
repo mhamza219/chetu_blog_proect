@@ -32,6 +32,11 @@ Rails.application.routes.draw do
 
   get "weather", to: "weather#index"
   resource :profile, only: [:edit, :update]
+  post "update_location", to: "users/locations#update", as: :update_user_location
+
+  get "distance_calculator", to: "distance_calculator#index", as: :distance_calculator
+  post "distance_calculator/calculate", to: "distance_calculator#calculate", as: :calculate_distance
+  get "distance_calculator/search", to: "distance_calculator#search", as: :search_distance_location
 
   get "turbo_frame_one", to: "turbo_frames#page_one"
   get "turbo_frame_two", to: "turbo_frames#page_two"
